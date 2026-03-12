@@ -1,6 +1,6 @@
-# PrepAI — AI Mock Interview Assistant
+# PrepAA: Mock Interview Assistant
 
-A full-stack web app that simulates real job interviews using AI voice conversation. Pick a role, optionally upload your resume, and get interviewed by an AI named Alex — then receive detailed feedback on your performance.
+A full-stack web app that simulates real job interviews using AI voice conversation. Pick a role, optionally upload your resume, and get interviewed by an AI.
 
 ---
 
@@ -21,16 +21,17 @@ A full-stack web app that simulates real job interviews using AI voice conversat
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 19 + Vite |
-| Routing | React Router v6 |
-| Auth | Clerk (`@clerk/react` v6) |
+| Frontend | React 19, Vite 7 |
+| Routing | React Router v7 |
+| Styling | Tailwind CSS 4, inline styles (dark theme) |
+| Auth | Clerk v6 (`@clerk/react`) |
 | Database | Supabase (PostgreSQL) |
-| AI (LLM) | Groq API — `llama-3.3-70b-versatile` |
+| AI (LLM) | Groq API |
 | Speech (TTS) | Browser Web Speech API — `SpeechSynthesis` |
 | Speech (STT) | Browser Web Speech API — `SpeechRecognition` |
 | PDF Parsing | `pdfjs-dist` (client-side, no backend) |
 | Icons | Lucide React |
-| Styling | Inline styles (dark theme) |
+| Deployment | Vercel |
 
 ---
 
@@ -90,32 +91,6 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173)
 
----
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── Navbar.jsx          # Top navigation bar
-│   ├── ProtectedRoute.jsx  # Auth guard for private routes
-│   └── SessionCard.jsx     # Past interview card with delete
-├── data/
-│   └── jobProfiles.js      # 4 predefined job role configs
-├── hooks/
-│   └── useSessions.js      # Supabase CRUD for interview sessions
-├── lib/
-│   ├── gemini.js           # Groq API calls (generateInterview, generateFeedback)
-│   ├── resumeParser.js     # PDF/TXT text extraction (pdfjs-dist)
-│   └── supabase.js         # Supabase client
-└── pages/
-    ├── LandingPage.jsx     # Public home page
-    ├── SignInPage.jsx       # Clerk sign-in
-    ├── SignUpPage.jsx       # Clerk sign-up
-    ├── Dashboard.jsx        # Job profile cards + past sessions
-    ├── JobProfile.jsx       # Role details + resume upload + start interview
-    └── InterviewSession.jsx # Live interview UI + feedback screen
-```
 
 ---
 
@@ -123,24 +98,11 @@ src/
 
 1. **Sign up** and land on the Dashboard
 2. **Pick a job role** (e.g. Data Analyst) to see the role details
-3. **Upload your resume** (optional PDF or TXT) — questions will reference your background
-4. **Click Start Interview** — Groq generates a personalised 5-question script
+3. **Upload your resume** (optional PDF or TXT) questions will reference your background
+4. **Click Start Interview** Groq generates a personalised question 
 5. **AI Alex speaks** the greeting via browser TTS; you respond with your microphone
 6. **Answer 5 questions** by speaking; click "Next Question" to proceed
-7. **Interview closes** with a natural goodbye, then Groq generates your feedback
-8. **Review your results** — overall score, strengths, improvements, per-question breakdown, and the full transcript
-
----
-
-## Free Tier Limits
-
-| Service | Free Limit | Impact |
-|---|---|---|
-| Groq | 14,400 tokens/day | ~7–10 full interviews/day |
-| Supabase | 500 MB database, 50k rows | Thousands of sessions |
-| Clerk | 10,000 monthly active users | More than enough |
-
----
+7. **Interview closes** with a natural goodbye
 
 ## Environment Variables Reference
 
@@ -163,6 +125,13 @@ Firefox and Safari have limited `SpeechRecognition` support.
 
 ---
 
-## License
+## Deployment
 
-MIT
+The project is pre-configured for **Vercel**. Push the repo to GitHub, connect it in Vercel, and set the four environment variables in the project settings. The `vercel.json` rewrite rule handles SPA client-side routing automatically.
+
+```bash
+vercel deploy
+```
+
+
+
