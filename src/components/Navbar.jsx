@@ -1,7 +1,12 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useAuth, useUser, useClerk } from '@clerk/react'
 
-export default function Navbar({ isAuthenticated = false }) {
-  const navigate = useNavigate()
+export default function Navbar() {
+  const { isSignedIn } = useAuth()
+  const { user } = useUser()
+  const { signOut } = useClerk()
+
+  const handleSignOut = () => signOut({ redirectUrl: '/' })
 
   return (
     <header style={{
@@ -30,10 +35,41 @@ export default function Navbar({ isAuthenticated = false }) {
         </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {isAuthenticated ? (
+          {isSignedIn ? (
             <>
               <Link to="/dashboard" style={ghostBtn}>Dashboard</Link>
-              <button onClick={() => navigate('/')} style={{ ...ghostBtn, background: 'none', cursor: 'pointer' }}>
+
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '5px 12px 5px 5px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 99,
+              }}>
+                {user?.imageUrl ? (
+                  <img
+                    src={user.imageUrl}
+                    alt="avatar"
+                    style={{ width: 26, height: 26, borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div style={{
+                    width: 26, height: 26, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#fff', fontSize: 12, fontWeight: 700,
+                  }}>
+                    {user?.firstName?.[0] ?? '?'}
+                  </div>
+                )}
+                <span style={{ color: '#d1d5db', fontSize: 13, fontWeight: 500 }}>
+                  {user?.firstName ?? 'User'}
+                </span>
+              </div>
+
+              <button onClick={handleSignOut} style={{
+                ...ghostBtn, background: 'none', border: 'none', cursor: 'pointer',
+              }}>
                 Sign Out
               </button>
             </>

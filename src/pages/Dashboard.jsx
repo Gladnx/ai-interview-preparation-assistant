@@ -1,16 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useUser } from '@clerk/react'
 import Navbar from '../components/Navbar'
 import SessionCard from '../components/SessionCard'
 
-const SAMPLE_SESSIONS = [
-  { id: '1', role: 'Frontend Engineer',  company: 'Stripe',  date: 'Mar 10, 2025', status: 'completed',   questionCount: 8 },
-  { id: '2', role: 'Product Manager',    company: 'Notion',  date: 'Mar 11, 2025', status: 'pending',     questionCount: 6 },
-  { id: '3', role: 'Backend Engineer',   company: 'Linear',  date: 'Mar 12, 2025', status: 'in_progress', questionCount: 7 },
-]
-
 export default function Dashboard() {
-  const [sessions] = useState(SAMPLE_SESSIONS)
+  const { user } = useUser()
+  const [sessions] = useState([])
 
   const totalSessions  = sessions.length
   const completedCount = sessions.filter((s) => s.status === 'completed').length
@@ -18,7 +14,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff' }}>
-      <Navbar isAuthenticated />
+      <Navbar />
 
       <main style={{ maxWidth: 1100, margin: '0 auto', padding: '96px 32px 64px' }}>
 
@@ -39,7 +35,7 @@ export default function Dashboard() {
           }} />
           <div>
             <div style={{ color: '#93c5fd', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-              👋 Welcome back
+              👋 Welcome back{user?.firstName ? `, ${user.firstName}` : ''}
             </div>
             <h1 style={{ color: '#f0f0ff', fontSize: 26, fontWeight: 800, letterSpacing: '-0.5px', marginBottom: 6 }}>
               Your Interview Dashboard

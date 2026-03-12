@@ -34,7 +34,7 @@ export default function CreateSession() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff' }}>
-      <Navbar isAuthenticated />
+      <Navbar />
 
       <main style={{ maxWidth: 700, margin: '0 auto', padding: '96px 32px 80px' }}>
         {/* Back */}
