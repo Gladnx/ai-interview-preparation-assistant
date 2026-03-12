@@ -1,6 +1,6 @@
-# PrepAI — AI Mock Interview Assistant
+# PrepAA — AI Mock Interview Assistant
 
-A full-stack web app that simulates real job interviews using AI voice conversation. Pick a role, optionally upload your resume, and get interviewed by an AI named Alex — then receive detailed feedback on your performance.
+A full-stack web app that simulates real job interviews using AI voice conversation. Pick a role, optionally upload your resume, and get interviewed by an AI
 
 ---
 
@@ -78,7 +78,6 @@ create table sessions (
   created_at timestamptz not null default now(),
   questions jsonb,
   answers jsonb,
-  feedback jsonb
 );
 ```
 
@@ -92,33 +91,6 @@ Open [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── Navbar.jsx          # Top navigation bar
-│   ├── ProtectedRoute.jsx  # Auth guard for private routes
-│   └── SessionCard.jsx     # Past interview card with delete
-├── data/
-│   └── jobProfiles.js      # 4 predefined job role configs
-├── hooks/
-│   └── useSessions.js      # Supabase CRUD for interview sessions
-├── lib/
-│   ├── gemini.js           # Groq API calls (generateInterview, generateFeedback)
-│   ├── resumeParser.js     # PDF/TXT text extraction (pdfjs-dist)
-│   └── supabase.js         # Supabase client
-└── pages/
-    ├── LandingPage.jsx     # Public home page
-    ├── SignInPage.jsx       # Clerk sign-in
-    ├── SignUpPage.jsx       # Clerk sign-up
-    ├── Dashboard.jsx        # Job profile cards + past sessions
-    ├── JobProfile.jsx       # Role details + resume upload + start interview
-    └── InterviewSession.jsx # Live interview UI + feedback screen
-```
-
----
-
 ## How It Works
 
 1. **Sign up** and land on the Dashboard
@@ -127,7 +99,7 @@ src/
 4. **Click Start Interview** — Groq generates a personalised 5-question script
 5. **AI Alex speaks** the greeting via browser TTS; you respond with your microphone
 6. **Answer 5 questions** by speaking; click "Next Question" to proceed
-7. **Interview closes** with a natural goodbye, then Groq generates your feedback
+7. **Interview closes** with a natural goodbye
 8. **Review your results** — overall score, strengths, improvements, per-question breakdown, and the full transcript
 
 ---
