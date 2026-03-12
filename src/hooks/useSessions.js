@@ -31,6 +31,7 @@ export function useSessions() {
       company: sessionData.company || null,
       job_description: sessionData.jobDescription,
       resume_name: sessionData.resumeName,
+      resume_text: sessionData.resumeText || null,
       status: 'pending',
       question_count: 0,
     }

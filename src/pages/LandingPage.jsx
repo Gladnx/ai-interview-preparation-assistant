@@ -7,40 +7,29 @@ const features = [
     icon: '🎙️',
     gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)',
     title: 'Live Voice Interviews',
-    desc: 'Practice with a real-time AI voice interviewer that adapts to your answers.',
+    desc: 'AI interviewer Alex speaks questions aloud and listens to your answers in real time just like the real thing.',
   },
   {
     icon: '📄',
     gradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
-    title: 'Tailored to Your Resume',
-    desc: 'Upload your resume — the AI generates role-specific questions just for you.',
+    title: 'Resume-Tailored Questions',
+    desc: 'Upload your PDF or TXT resume and the AI generates questions that reference your actual projects and experience.',
   },
   {
-    icon: '📊',
-    gradient: 'linear-gradient(135deg, #10b981, #059669)',
-    title: 'Instant AI Feedback',
-    desc: 'Receive detailed performance insights and improvement tips after each session.',
-  },
-  {
-    icon: '⚡',
+    icon: '💼',
     gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-    title: 'Ready in 60 Seconds',
-    desc: 'Sign up, upload, and start your first mock interview in under a minute.',
+    title: '4 Real Job Roles',
+    desc: 'Choose from Data Analyst, Data Engineer, Full Stack Engineer, or AI Engineer — each with real job descriptions.',
   },
 ]
 
 const steps = [
-  { num: '1', title: 'Create an Account', desc: 'Sign up free — no credit card needed.' },
-  { num: '2', title: 'Upload Your Resume', desc: 'Add your resume and the job description for your target role.' },
-  { num: '3', title: 'Start the Interview', desc: 'Have a live AI voice conversation tailored to your profile.' },
-  { num: '4', title: 'Review Your Feedback', desc: 'Get a detailed breakdown of your performance and what to improve.' },
+  { num: '1', title: 'Sign Up Free', desc: 'Create your account (no credit card, no setup required)' },
+  { num: '2', title: 'Pick a Role', desc: 'Choose from 4 curated job profiles with real tech stacks and salary ranges.' },
+  { num: '3', title: 'Upload Your Resume', desc: 'Optionally add your resume so questions are tailored to your background.' },
+  { num: '4', title: 'Start the Interview', desc: 'AI interviewer will asks questions and you can answer with your voice.' },
 ]
 
-const stats = [
-  { value: '10k+', label: 'Practice Sessions' },
-  { value: '95%', label: 'User Satisfaction' },
-  { value: '50+', label: 'Job Roles Covered' },
-]
 
 export default function LandingPage() {
   return (
@@ -101,8 +90,8 @@ export default function LandingPage() {
             fontSize: 18, color: '#6b7280', lineHeight: 1.7,
             maxWidth: 560, margin: '0 auto 40px',
           }}>
-            Practice with a live AI voice interviewer tailored to your resume and dream job.
-            Get feedback. Build confidence. Land the role.
+            Pick a job role, upload your resume, and get interviewed by AI in real time.
+            Score your answers, review your transcript, and walk in ready.
           </p>
 
           {/* CTAs */}
@@ -147,8 +136,8 @@ export default function LandingPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
               }}>🤖</div>
               <div>
-                <div style={{ color: '#f0f0ff', fontWeight: 600, fontSize: 14 }}>AI Interviewer</div>
-                <div style={{ color: '#6b7280', fontSize: 12 }}>Frontend Engineer · Stripe</div>
+                <div style={{ color: '#f0f0ff', fontWeight: 600, fontSize: 14 }}>Alex — AI Interviewer</div>
+                <div style={{ color: '#6b7280', fontSize: 12 }}>Full Stack Engineer · Question 3 of 5</div>
               </div>
               <div style={{
                 marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6,
@@ -168,7 +157,7 @@ export default function LandingPage() {
                 Current Question
               </div>
               <div style={{ color: '#e0e0ff', fontSize: 14, lineHeight: 1.6 }}>
-                "Walk me through how you'd design a performant infinite scroll component in React. What edge cases would you handle?"
+                "You mentioned building a REST API in your resume — walk me through a challenging design decision you made and how you handled it."
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -189,23 +178,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── STATS ── */}
-      <section style={{ padding: '0 24px 80px', position: 'relative' }}>
-        <div style={{
-          maxWidth: 600, margin: '0 auto',
-          display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 2,
-          background: 'rgba(255,255,255,0.04)', borderRadius: 16,
-          border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden',
-        }}>
-          {stats.map((s, i) => (
-            <div key={i} style={{ padding: '28px 24px', textAlign: 'center' }}>
-              <div style={{ fontSize: 32, fontWeight: 800, color: '#f0f0ff', letterSpacing: '-1px' }}>{s.value}</div>
-              <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{s.label}</div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -283,7 +255,7 @@ export default function LandingPage() {
             Ready to land your dream job?
           </h2>
           <p style={{ color: '#9ca3af', fontSize: 16, marginBottom: 32 }}>
-            Join thousands of candidates who prep smarter with AI.
+            Free to use. No credit card. Start your first mock interview in under a minute.
           </p>
           <Link to="/sign-up" style={{
             display: 'inline-block',

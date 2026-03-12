@@ -1,0 +1,58 @@
+export const JOB_PROFILES = [
+  {
+    id: 'data-analyst',
+    title: 'Data Analyst',
+    icon: 'BarChart2',
+    color: '#3b82f6',
+    level: 'Intermediate',
+    salary: '$65K – $95K / year',
+    description: 'Analyze complex datasets to extract insights that drive business decisions. Work closely with stakeholders to build dashboards and communicate findings clearly.',
+    techStack: ['Python', 'SQL', 'Excel', 'Tableau', 'Power BI', 'R'],
+    concepts: ['Statistical Analysis', 'Data Visualization', 'ETL Pipelines', 'A/B Testing', 'Business Intelligence', 'KPI Reporting'],
+    interviewFocus: 'SQL proficiency, Python for analysis, statistics fundamentals, data storytelling, and problem-solving with real datasets.',
+    jobDescription: `We are looking for a skilled Data Analyst to join our team. You will analyze large datasets using Python and SQL, create dashboards in Tableau or Power BI, perform A/B testing and statistical analysis, collaborate with business stakeholders to define KPIs, and present findings to non-technical audiences. Requirements: Strong SQL and Python skills, experience with data visualization tools, solid understanding of statistics and probability, ability to communicate insights clearly, experience with Excel or Google Sheets.`,
+  },
+  {
+    id: 'data-engineer',
+    title: 'Data Engineer',
+    icon: 'Database',
+    color: '#10b981',
+    level: 'Advanced',
+    salary: '$85K – $130K / year',
+    description: 'Design, build, and maintain scalable data pipelines and infrastructure. Transform raw data into clean, reliable datasets that analysts and ML teams depend on.',
+    techStack: ['Python', 'Apache Spark', 'Apache Kafka', 'Airflow', 'dbt', 'SQL', 'AWS / GCP / Azure'],
+    concepts: ['ETL / ELT Pipelines', 'Data Warehousing', 'Data Modeling', 'Stream Processing', 'Data Quality', 'Cloud Infrastructure'],
+    interviewFocus: 'Pipeline design, SQL optimization, distributed systems, data modeling patterns, cloud service knowledge.',
+    jobDescription: `We are hiring a Data Engineer to build and maintain our data infrastructure. Responsibilities include designing ETL/ELT pipelines, managing data warehouses (Snowflake/BigQuery/Redshift), implementing data quality checks, optimizing SQL for performance, working with streaming data via Kafka or Spark, and collaborating with data scientists. Requirements: Strong Python and SQL, experience with Apache Spark, familiarity with cloud platforms (AWS, GCP, or Azure), knowledge of data modeling, and experience with orchestration tools like Airflow or Prefect.`,
+  },
+  {
+    id: 'full-stack',
+    title: 'Full Stack Engineer',
+    icon: 'Layers',
+    color: '#8b5cf6',
+    level: 'Intermediate',
+    salary: '$90K – $140K / year',
+    description: 'Build end-to-end web applications from database design to polished user interfaces. Own features across the full stack in close collaboration with product and design.',
+    techStack: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Docker', 'REST / GraphQL'],
+    concepts: ['Component Architecture', 'API Design', 'Database Design', 'Auth & Authorization', 'CI / CD', 'Performance Optimization'],
+    interviewFocus: 'JavaScript/TypeScript depth, React patterns, system design, REST APIs, algorithms and data structures.',
+    jobDescription: `We are looking for a Full Stack Engineer to build and maintain our web applications. You will develop React frontends with TypeScript, build Node.js/Express backend APIs, design and manage PostgreSQL databases, implement authentication, write tests, and maintain CI/CD pipelines. Requirements: Proficiency in React and TypeScript, experience with Node.js and REST API design, strong SQL knowledge, understanding of web security best practices, and experience with collaborative Git workflows.`,
+  },
+  {
+    id: 'ai-engineer',
+    title: 'AI Engineer',
+    icon: 'Sparkles',
+    color: '#f59e0b',
+    level: 'Advanced',
+    salary: '$110K – $180K / year',
+    description: 'Build intelligent applications powered by large language models and machine learning. Design prompts, integrate AI APIs, and ship production-ready AI systems at scale.',
+    techStack: ['Python', 'PyTorch', 'LangChain', 'OpenAI / Gemini API', 'Hugging Face', 'FastAPI', 'Docker'],
+    concepts: ['Large Language Models', 'Prompt Engineering', 'RAG Architecture', 'Fine-tuning', 'Vector Databases', 'MLOps'],
+    interviewFocus: 'ML fundamentals, LLM integration, Python, system design for AI applications, prompt engineering strategies.',
+    jobDescription: `We are seeking an AI Engineer to design and build AI-powered features. Responsibilities include integrating LLMs (OpenAI, Gemini, Anthropic) into production applications, implementing RAG systems, designing prompt engineering strategies, fine-tuning models, building evaluation pipelines, and deploying ML models at scale. Requirements: Strong Python skills, experience with LLM APIs and frameworks (LangChain, LlamaIndex), understanding of ML fundamentals, experience with vector databases (Pinecone, Chroma), and knowledge of MLOps practices.`,
+  },
+]
+
+export function getProfile(id) {
+  return JOB_PROFILES.find(p => p.id === id) ?? null
+}
