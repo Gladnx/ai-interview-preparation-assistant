@@ -186,7 +186,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
             <div style={{ color: '#3b82f6', fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
-              Why PrepAI
+              Why PrepAA
             </div>
             <h2 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 800, color: '#f0f0ff', letterSpacing: '-1px', marginBottom: 14 }}>
               Everything you need to prepare
@@ -275,7 +275,7 @@ export default function LandingPage() {
         padding: '32px 24px', textAlign: 'center',
         color: '#374151', fontSize: 14,
       }}>
-        © {new Date().getFullYear()} PrepAI. All rights reserved.
+        © {new Date().getFullYear()} PrepAA — Preparation Assistant AI. All rights reserved.
       </footer>
     </div>
   )

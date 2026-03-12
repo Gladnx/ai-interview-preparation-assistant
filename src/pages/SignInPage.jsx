@@ -76,7 +76,7 @@ export default function SignInPage() {
               color: '#fff', fontSize: 16, fontWeight: 800,
               boxShadow: '0 0 20px rgba(59,130,246,0.4)',
             }}>◆</div>
-            <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAI</span>
+            <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAA</span>
           </Link>
 
           <div>
@@ -98,7 +98,7 @@ export default function SignInPage() {
             borderRadius: 14, padding: '20px 22px',
           }}>
             <p style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.7, marginBottom: 14, fontStyle: 'italic' }}>
-              "PrepAI helped me land my dream job at Stripe. The voice interview practice is shockingly realistic."
+              "PrepAA helped me land my dream job at Stripe. The voice interview practice is shockingly realistic."
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
@@ -131,7 +131,7 @@ export default function SignInPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontSize: 16, fontWeight: 800,
               }}>◆</div>
-              <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAI</span>
+              <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAA</span>
             </Link>
           </div>
 

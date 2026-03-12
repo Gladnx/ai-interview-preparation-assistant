@@ -74,7 +74,7 @@ export default function SignUpPage() {
               color: '#fff', fontSize: 16, fontWeight: 800,
               boxShadow: '0 0 20px rgba(59,130,246,0.4)',
             }}>◆</div>
-            <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAI</span>
+            <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAA</span>
           </Link>
 
           <div>
@@ -102,7 +102,7 @@ export default function SignUpPage() {
           </div>
 
           <div style={{ color: '#374151', fontSize: 13 }}>
-            © {new Date().getFullYear()} PrepAI
+            © {new Date().getFullYear()} PrepAA
           </div>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function SignUpPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontSize: 16, fontWeight: 800,
               }}>◆</div>
-              <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAI</span>
+              <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAA</span>
             </Link>
           </div>
 

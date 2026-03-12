@@ -29,9 +29,10 @@ export default function Navbar() {
             boxShadow: '0 0 24px rgba(59,130,246,0.45)',
             flexShrink: 0,
           }}>◆</div>
-          <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 18, letterSpacing: '-0.4px' }}>
-            PrepAI
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+            <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 18, letterSpacing: '-0.4px' }}>PrepAA</span>
+            <span style={{ color: '#6b7280', fontWeight: 400, fontSize: 10, letterSpacing: '0.2px' }}>Preparation Assistant AI</span>
+          </div>
         </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
