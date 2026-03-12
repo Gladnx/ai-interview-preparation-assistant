@@ -1,12 +1,12 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useUser } from '@clerk/react'
 import Navbar from '../components/Navbar'
 import SessionCard from '../components/SessionCard'
+import { useSessions } from '../hooks/useSessions'
 
 export default function Dashboard() {
   const { user } = useUser()
-  const [sessions] = useState([])
+  const { sessions, loading, deleteSession } = useSessions()
 
   const totalSessions  = sessions.length
   const completedCount = sessions.filter((s) => s.status === 'completed').length
@@ -98,7 +98,11 @@ export default function Dashboard() {
         </div>
 
         {/* Session grid */}
-        {sessions.length === 0 ? (
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '80px 24px', color: '#4b5563', fontSize: 14 }}>
+            Loading sessions…
+          </div>
+        ) : sessions.length === 0 ? (
           <EmptyState />
         ) : (
           <div style={{
@@ -107,7 +111,7 @@ export default function Dashboard() {
             gap: 18,
           }}>
             {sessions.map((session) => (
-              <SessionCard key={session.id} session={session} />
+              <SessionCard key={session.id} session={session} onDelete={deleteSession} />
             ))}
 
             {/* Create new card */}

@@ -1,8 +1,22 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { useSessions } from '../hooks/useSessions'
 
 export default function InterviewSession() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { getSession } = useSessions()
+  const session = getSession(id)
+
+  if (!session) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+        <div style={{ fontSize: 48 }}>🔍</div>
+        <h2 style={{ color: '#f0f0ff', fontSize: 20, fontWeight: 700 }}>Session not found</h2>
+        <Link to="/dashboard" style={{ color: '#3b82f6', fontSize: 14 }}>← Back to Dashboard</Link>
+      </div>
+    )
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff' }}>
@@ -25,9 +39,11 @@ export default function InterviewSession() {
         }}>
           <div>
             <h1 style={{ color: '#f0f0ff', fontSize: 24, fontWeight: 800, letterSpacing: '-0.5px' }}>
-              Interview Room
+              {session.role}{session.company ? ` @ ${session.company}` : ''}
             </h1>
-            <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>Session #{id}</p>
+            <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>
+              Created {new Date(session.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · Resume: {session.resume_name}
+            </p>
           </div>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8,
@@ -38,6 +54,23 @@ export default function InterviewSession() {
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
             Live Session
           </div>
+        </div>
+
+        {/* Job description preview */}
+        <div style={{
+          background: '#0e0e1a', border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: 18, padding: '24px', marginBottom: 20,
+        }}>
+          <div style={{ color: '#4b5563', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            Job Description
+          </div>
+          <p style={{
+            color: '#9ca3af', fontSize: 14, lineHeight: 1.7,
+            maxHeight: 100, overflow: 'hidden',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+          }}>
+            {session.job_description}
+          </p>
         </div>
 
         {/* Main layout */}
@@ -136,12 +169,14 @@ export default function InterviewSession() {
           }}>
             ⏭ Next Question
           </button>
-          <button disabled style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
-            color: '#ef4444', fontWeight: 700, fontSize: 15,
-            padding: '14px 24px', borderRadius: 12, cursor: 'not-allowed', opacity: 0.7,
-          }}>
+          <button
+            onClick={() => navigate('/dashboard')}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+              color: '#ef4444', fontWeight: 700, fontSize: 15,
+              padding: '14px 24px', borderRadius: 12, cursor: 'pointer',
+            }}>
             ⏹ End
           </button>
         </div>

@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { useSessions } from '../hooks/useSessions'
 
 export default function CreateSession() {
   const navigate = useNavigate()
+  const { addSession } = useSessions()
   const [role, setRole] = useState('')
   const [company, setCompany] = useState('')
   const [jobDescription, setJobDescription] = useState('')
   const [resumeFile, setResumeFile] = useState(null)
   const [dragActive, setDragActive] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleDrag = (e) => {
     e.preventDefault(); e.stopPropagation()
@@ -23,11 +26,24 @@ export default function CreateSession() {
     if (file) setResumeFile(file)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!resumeFile || !jobDescription.trim() || !role.trim()) return
     setLoading(true)
-    setTimeout(() => navigate('/dashboard'), 1000)
+    setError(null)
+    try {
+      const session = await addSession({
+        role: role.trim(),
+        company: company.trim(),
+        jobDescription: jobDescription.trim(),
+        resumeName: resumeFile.name,
+      })
+      navigate(`/interview/${session.id}`)
+    } catch (err) {
+      console.error('Failed to create session:', err)
+      setError(err?.message || 'Something went wrong. Check the console for details.')
+      setLoading(false)
+    }
   }
 
   const isValid = role.trim() && jobDescription.trim() && resumeFile
@@ -166,6 +182,16 @@ export default function CreateSession() {
               {jobDescription.length} characters
             </div>
           </Section>
+
+          {error && (
+            <div style={{
+              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
+              borderRadius: 10, padding: '12px 16px',
+              color: '#f87171', fontSize: 13, lineHeight: 1.5,
+            }}>
+              Error: {error}
+            </div>
+          )}
 
           {/* Submit */}
           <button type="submit" disabled={!isValid || loading} style={{

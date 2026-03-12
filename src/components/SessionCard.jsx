@@ -19,19 +19,34 @@ function getRoleIcon(role = '') {
   return '🎯'
 }
 
-export default function SessionCard({ session }) {
+export default function SessionCard({ session, onDelete }) {
   const navigate = useNavigate()
   const [hovered, setHovered] = useState(false)
-  const { id, role, company, date, status, questionCount } = session
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const { id, role, company, created_at, status, question_count } = session
+  const date = new Date(created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   const s = STATUS[status] || STATUS.pending
+
+  const handleDelete = async (e) => {
+    e.stopPropagation()
+    if (!confirmDelete) { setConfirmDelete(true); return }
+    setDeleting(true)
+    try { await onDelete(id) } catch { setDeleting(false) }
+  }
+
+  const handleCancelDelete = (e) => {
+    e.stopPropagation()
+    setConfirmDelete(false)
+  }
 
   return (
     <div
-      onClick={() => navigate(`/interview/${id}`)}
+      onClick={() => !confirmDelete && navigate(`/interview/${id}`)}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={() => { setHovered(false); setConfirmDelete(false) }}
       style={{
-        cursor: 'pointer',
+        cursor: confirmDelete ? 'default' : 'pointer',
         background: hovered ? '#13131f' : '#0e0e1a',
         border: hovered ? '1px solid rgba(59,130,246,0.4)' : '1px solid rgba(255,255,255,0.07)',
         borderRadius: 16,
@@ -40,6 +55,7 @@ export default function SessionCard({ session }) {
         transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
         boxShadow: hovered ? '0 12px 40px rgba(59,130,246,0.12)' : '0 2px 12px rgba(0,0,0,0.3)',
         display: 'flex', flexDirection: 'column', gap: 16,
+        position: 'relative',
       }}
     >
       {/* Top row */}
@@ -74,7 +90,7 @@ export default function SessionCard({ session }) {
       <div style={{ display: 'flex', gap: 16 }}>
         <span style={{ color: '#4b5563', fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ fontSize: 14 }}>📋</span>
-          {questionCount ?? '—'} questions
+          {question_count ?? '—'} questions
         </span>
         <span style={{ color: '#4b5563', fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ fontSize: 14 }}>📅</span>
@@ -88,15 +104,58 @@ export default function SessionCard({ session }) {
         paddingTop: 14,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <span style={{ color: '#374151', fontSize: 12 }}>Click to begin interview</span>
-        <span style={{
-          color: '#3b82f6', fontSize: 13, fontWeight: 600,
-          transition: 'transform 0.15s',
-          transform: hovered ? 'translateX(3px)' : 'translateX(0)',
-          display: 'inline-block',
-        }}>
-          Start →
-        </span>
+        {confirmDelete ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
+            <span style={{ color: '#f87171', fontSize: 13, flex: 1 }}>Delete this session?</span>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              style={{
+                background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
+                color: '#f87171', fontSize: 12, fontWeight: 700,
+                padding: '5px 12px', borderRadius: 7, cursor: 'pointer',
+              }}>
+              {deleting ? '…' : 'Yes, delete'}
+            </button>
+            <button
+              onClick={handleCancelDelete}
+              style={{
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                color: '#9ca3af', fontSize: 12, fontWeight: 600,
+                padding: '5px 12px', borderRadius: 7, cursor: 'pointer',
+              }}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <>
+            <span style={{ color: '#374151', fontSize: 12 }}>Click to begin interview</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                onClick={handleDelete}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: '#4b5563', fontSize: 15, padding: '2px 4px',
+                  lineHeight: 1, borderRadius: 6,
+                  transition: 'color 0.15s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#4b5563'}
+                title="Delete session"
+              >
+                🗑
+              </button>
+              <span style={{
+                color: '#3b82f6', fontSize: 13, fontWeight: 600,
+                transition: 'transform 0.15s',
+                transform: hovered ? 'translateX(3px)' : 'translateX(0)',
+                display: 'inline-block',
+              }}>
+                Start →
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
