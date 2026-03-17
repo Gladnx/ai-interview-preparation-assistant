@@ -1,6 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth, useUser, useClerk } from '@clerk/react'
+
+function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth)
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return width
+}
 
 function GhostLink({ to, children }) {
   const [hovered, setHovered] = useState(false)
@@ -68,6 +78,8 @@ export default function Navbar() {
   const { isSignedIn } = useAuth()
   const { user } = useUser()
   const { signOut } = useClerk()
+  const width = useWindowWidth()
+  const isMobile = width < 640
 
   const handleSignOut = () => signOut({ redirectUrl: '/' })
 
@@ -78,7 +90,7 @@ export default function Navbar() {
       borderBottom: '1px solid rgba(255,255,255,0.08)',
     }}>
       <div style={{
-        maxWidth: 1200, margin: '0 auto', padding: '0 32px',
+        maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 20px' : '0 32px',
         height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
@@ -95,7 +107,8 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {isSignedIn ? (
             <>
-              <GhostLink to="/dashboard">Dashboard</GhostLink>
+              {!isMobile && <GhostLink to="/dashboard">Dashboard</GhostLink>}
+              {isMobile && <GhostLink to="/dashboard">Dashboard</GhostLink>}
 
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 7,
@@ -121,17 +134,19 @@ export default function Navbar() {
                     {user?.firstName?.[0] ?? '?'}
                   </div>
                 )}
-                <span style={{ color: '#d1d5db', fontSize: 13, fontWeight: 500 }}>
-                  {user?.firstName ?? 'User'}
-                </span>
+                {!isMobile && (
+                  <span style={{ color: '#d1d5db', fontSize: 13, fontWeight: 500 }}>
+                    {user?.firstName ?? 'User'}
+                  </span>
+                )}
               </div>
 
-              <GhostButton onClick={handleSignOut}>Sign Out</GhostButton>
+              <GhostButton onClick={handleSignOut}>{isMobile ? 'Out' : 'Sign Out'}</GhostButton>
             </>
           ) : (
             <>
-              <GhostLink to="/sign-in">Sign In</GhostLink>
-              <PrimaryLink to="/sign-up">Get Started</PrimaryLink>
+              {!isMobile && <GhostLink to="/sign-in">Sign In</GhostLink>}
+              <PrimaryLink to="/sign-up">{isMobile ? 'Sign up' : 'Get Started'}</PrimaryLink>
             </>
           )}
         </div>
