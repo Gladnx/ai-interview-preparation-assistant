@@ -2,311 +2,305 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 
+function PrimaryBtn({ to, children }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <Link
+      to={to}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? '#2563eb' : '#1d4ed8',
+        color: '#fff', fontWeight: 600, fontSize: 14,
+        padding: '11px 24px', borderRadius: 7, textDecoration: 'none',
+        display: 'inline-block',
+        transition: 'background 0.15s ease',
+      }}
+    >
+      {children}
+    </Link>
+  )
+}
+
+function SecondaryBtn({ to, children }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <Link
+      to={to}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? 'rgba(255,255,255,0.06)' : 'transparent',
+        border: hovered ? '1px solid rgba(255,255,255,0.22)' : '1px solid rgba(255,255,255,0.12)',
+        color: hovered ? '#e5e7eb' : '#9ca3af',
+        fontWeight: 500, fontSize: 14,
+        padding: '11px 24px', borderRadius: 7, textDecoration: 'none',
+        display: 'inline-block',
+        transition: 'all 0.15s ease',
+      }}
+    >
+      {children}
+    </Link>
+  )
+}
+
+const roles = ['Data Analyst', 'Data Engineer', 'Full Stack Engineer', 'AI Engineer']
+
 const features = [
   {
-    icon: '🎙️',
-    gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-    title: 'Live Voice Interviews',
-    desc: 'AI interviewer Alex speaks questions aloud and listens to your answers in real time just like the real thing.',
+    title: 'Voice interviews, not text boxes',
+    desc: 'Your AI interviewer, asks questions out loud and listens to your spoken answers the same way a real interview works.',
   },
   {
-    icon: '📄',
-    gradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
-    title: 'Resume-Tailored Questions',
-    desc: 'Upload your PDF or TXT resume and the AI generates questions that reference your actual projects and experience.',
+    title: 'Questions pulled from your resume',
+    desc: 'Upload your resume and the AI references your actual projects, tools, and experience instead of asking generic questions.',
   },
   {
-    icon: '💼',
-    gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-    title: '4 Real Job Roles',
-    desc: 'Choose from Data Analyst, Data Engineer, Full Stack Engineer, or AI Engineer — each with real job descriptions.',
+    title: 'Quick personalized interview',
+    desc: "No more sifting through hundreds of questions. Get a quick interview tailored to your background and target role in under 2 minutes.",
   },
 ]
 
 const steps = [
-  { num: '1', title: 'Sign Up Free', desc: 'Create your account (no credit card, no setup required)' },
-  { num: '2', title: 'Pick a Role', desc: 'Choose from 4 curated job profiles with real tech stacks and salary ranges.' },
-  { num: '3', title: 'Upload Your Resume', desc: 'Optionally add your resume so questions are tailored to your background.' },
-  { num: '4', title: 'Start the Interview', desc: 'AI interviewer will asks questions and you can answer with your voice.' },
+  { n: '1', title: 'Create an account', desc: 'Free, no card needed.' },
+  { n: '2', title: 'Pick a role', desc: 'Data, engineering, or AI.' },
+  { n: '3', title: 'Add your resume', desc: 'Optional but recommended.' },
+  { n: '4', title: 'Start the interview', desc: 'Speak your answers out loud.' },
 ]
-
 
 export default function LandingPage() {
   return (
-    <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: '#08080e', color: '#eeeef5', overflowX: 'hidden' }}>
       <Navbar />
 
       {/* ── HERO ── */}
-      <section style={{ position: 'relative', paddingTop: 148, paddingBottom: 100, textAlign: 'center', overflow: 'hidden' }}>
-        {/* Glow blobs */}
+      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '120px 40px 80px' }}>
         <div style={{
-          position: 'absolute', top: -80, left: '50%', transform: 'translateX(-50%)',
-          width: 800, height: 800, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 65%)',
-          pointerEvents: 'none', filter: 'blur(40px)',
-        }} />
-        <div style={{
-          position: 'absolute', top: 200, right: '8%',
-          width: 400, height: 400, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(37,99,235,0.10) 0%, transparent 70%)',
-          pointerEvents: 'none', filter: 'blur(60px)',
-        }} />
-
-        <div style={{ position: 'relative', maxWidth: 780, margin: '0 auto', padding: '0 24px' }}>
-          {/* Pill badge */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)',
-            color: '#93c5fd', fontSize: 13, fontWeight: 500,
-            padding: '6px 16px', borderRadius: 99, marginBottom: 32,
-          }}>
-            <span style={{
-              width: 7, height: 7, borderRadius: '50%', background: '#3b82f6',
-              boxShadow: '0 0 8px #3b82f6',
-              animation: 'pulse-dot 2s ease-in-out infinite',
-            }} />
-            AI-Powered Interview Practice
+          display: 'grid',
+          gridTemplateColumns: '1fr 420px',
+          gap: 64,
+          alignItems: 'center',
+        }}>
+          {/* Left: copy */}
+          <div>
+            
+            <h1 style={{
+              fontSize: 'clamp(36px, 4.5vw, 60px)',
+              fontWeight: 800,
+              lineHeight: 1.12,
+              letterSpacing: '-1px',
+              color: '#f0f0f8',
+              marginBottom: 20,
+            }}>
+              Practice interviews<br />
+              before the one<br />
+              that counts.
+            </h1>
+            <p style={{
+              fontSize: 16,
+              color: '#7c8494',
+              lineHeight: 1.75,
+              maxWidth: 440,
+              marginBottom: 36,
+            }}>
+              Tell PrepAA what role you're targeting, upload your resume, and get
+              interviewed by an AI that knows your background. Get scored, get
+              feedback, and go in prepared.
+            </p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <PrimaryBtn to="/sign-up">Try it free</PrimaryBtn>
+              <SecondaryBtn to="/sign-in">Sign in</SecondaryBtn>
+            </div>
+            <p style={{ marginTop: 16, color: '#3d4252', fontSize: 12 }}>
+              No credit card. Takes 30 seconds to set up.
+            </p>
           </div>
 
-          {/* Headline */}
-          <h1 style={{
-            fontSize: 'clamp(48px, 7vw, 80px)', fontWeight: 800,
-            lineHeight: 1.08, letterSpacing: '-2px',
-            marginBottom: 24,
-          }}>
-            <span style={{ color: '#f0f0ff' }}>Ace Your</span>
-            <br />
-            <span style={{
-              background: 'linear-gradient(135deg, #bfdbfe 0%, #60a5fa 50%, #60a5fa 100%)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Next Interview
-            </span>
-          </h1>
-
-          {/* Subtitle */}
-          <p style={{
-            fontSize: 18, color: '#6b7280', lineHeight: 1.7,
-            maxWidth: 560, margin: '0 auto 40px',
-          }}>
-            Pick a job role, upload your resume, and get interviewed by AI in real time.
-            Score your answers, review your transcript, and walk in ready.
-          </p>
-
-          {/* CTAs */}
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/sign-up" style={{
-              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              color: '#fff', fontWeight: 700, fontSize: 16,
-              padding: '14px 32px', borderRadius: 12, textDecoration: 'none',
-              boxShadow: '0 0 32px rgba(59,130,246,0.4)',
-              display: 'inline-block',
-            }}>
-              Start for Free →
-            </Link>
-            <Link to="/sign-in" style={{
-              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-              color: '#d1d5db', fontWeight: 600, fontSize: 16,
-              padding: '14px 32px', borderRadius: 12, textDecoration: 'none',
-              display: 'inline-block',
-            }}>
-              Sign In
-            </Link>
-          </div>
-
-          {/* Floating mock card */}
+          {/* Right: interview preview */}
           <div style={{
-            marginTop: 64, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto',
-            background: '#0d0d1a', border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 20, padding: 28, textAlign: 'left',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.1)',
-            position: 'relative',
+            background: '#0d0d1a',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 10,
+            overflow: 'hidden',
           }}>
+            {/* Window bar */}
             <div style={{
-              position: 'absolute', top: -1, left: 40, right: 40, height: 2,
-              background: 'linear-gradient(90deg, transparent, #3b82f6, transparent)',
-              borderRadius: 2,
-            }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 10,
-                background: 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(37,99,235,0.2))',
-                border: '1px solid rgba(59,130,246,0.3)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
-              }}>🤖</div>
-              <div>
-                <div style={{ color: '#f0f0ff', fontWeight: 600, fontSize: 14 }}>Alex — AI Interviewer</div>
-                <div style={{ color: '#6b7280', fontSize: 12 }}>Full Stack Engineer · Question 3 of 5</div>
-              </div>
-              <div style={{
-                marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6,
-                color: '#10b981', fontSize: 12, fontWeight: 600,
-                background: 'rgba(16,185,129,0.1)', padding: '4px 10px', borderRadius: 99,
-                border: '1px solid rgba(16,185,129,0.2)',
-              }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
-                Live
-              </div>
-            </div>
-            <div style={{
-              background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: '16px 18px',
-              marginBottom: 14,
+              padding: '12px 16px',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              display: 'flex', alignItems: 'center', gap: 8,
             }}>
-              <div style={{ color: '#6b7280', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-                Current Question
+              <div style={{ display: 'flex', gap: 6 }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#3d3d3d', display: 'block' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#3d3d3d', display: 'block' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#3d3d3d', display: 'block' }} />
               </div>
-              <div style={{ color: '#e0e0ff', fontSize: 14, lineHeight: 1.6 }}>
-                "You mentioned building a REST API in your resume — walk me through a challenging design decision you made and how you handled it."
-              </div>
+              <span style={{ color: '#3d4252', fontSize: 11, marginLeft: 4 }}>Live Interview — Full Stack Engineer</span>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <div style={{
-                flex: 1, background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                color: '#fff', fontSize: 13, fontWeight: 600,
-                padding: '10px 0', borderRadius: 8, textAlign: 'center',
-                opacity: 0.7,
-              }}>
-                🎤 Listening...
+
+            {/* Chat */}
+            <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* AI message */}
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: 6, background: '#1a1a2e',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 13, flexShrink: 0,
+                }}>🤖</div>
+                <div style={{
+                  background: '#131320',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: '4px 10px 10px 10px',
+                  padding: '10px 14px',
+                  fontSize: 13, color: '#c8c8d8', lineHeight: 1.6,
+                }}>
+                  You mentioned building a REST API walk me through a design
+                  decision you made and why.
+                </div>
               </div>
+
+              {/* User typing */}
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flexDirection: 'row-reverse' }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: 6, background: '#1a2a3a',
+                  border: '1px solid rgba(59,130,246,0.2)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 13, flexShrink: 0,
+                }}>🙂</div>
+                <div style={{
+                  background: '#0f1e2e',
+                  border: '1px solid rgba(59,130,246,0.15)',
+                  borderRadius: '10px 4px 10px 10px',
+                  padding: '10px 14px',
+                  fontSize: 13, color: '#94b8d4', lineHeight: 1.6,
+                  fontStyle: 'italic',
+                }}>
+                  Speaking... 🎤
+                </div>
+              </div>
+
+              {/* Progress */}
               <div style={{
-                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)',
-                color: '#9ca3af', fontSize: 13, fontWeight: 600,
-                padding: '10px 16px', borderRadius: 8, opacity: 0.7,
+                borderTop: '1px solid rgba(255,255,255,0.05)',
+                paddingTop: 14,
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
-                ⏭ Skip
+                <span style={{ color: '#3d4252', fontSize: 11 }}>Question 3 of 5</span>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} style={{
+                      width: 20, height: 3, borderRadius: 2,
+                      background: i <= 3 ? '#2563eb' : 'rgba(255,255,255,0.1)',
+                    }} />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Roles strip */}
+        <div style={{
+          marginTop: 56,
+          paddingTop: 32,
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+        }}>
+          <span style={{ color: 'white', fontSize: 12, marginRight: 4 }}>Available roles:</span>
+          {roles.map(r => (
+            <span key={r} style={{
+              background: 'blue',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: 'white', fontSize: 12,
+              padding: '4px 12px', borderRadius: 5,
+            }}>{r}</span>
+          ))}
+        </div>
       </section>
 
       {/* ── FEATURES ── */}
-      <section style={{ padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '80px 40px', background: '#0a0a14' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 60 }}>
-            <div style={{ color: '#3b82f6', fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
-              Why PrepAA
-            </div>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 800, color: '#f0f0ff', letterSpacing: '-1px', marginBottom: 14 }}>
-              Everything you need to prepare
-            </h2>
-            <p style={{ color: '#6b7280', fontSize: 16, maxWidth: 480, margin: '0 auto' }}>
-              Powerful AI tools to help you walk into every interview with confidence.
-            </p>
-          </div>
+          <h2 style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 700, color: 'white', marginBottom: 6 }}>
+            Built differently
+          </h2>
+          <p style={{ color: '#7c8494', fontSize: 14, marginBottom: 52 }}>
+            Most interview tools are just flashcard quizzes. PrepAA actually puts you in the hot seat.
+          </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
-            {features.map((f) => (
-              <FeatureCard key={f.title} feature={f} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {features.map((f, i) => (
+              <div key={i} style={{
+                display: 'grid',
+                gridTemplateColumns: '200px 1fr',
+                gap: 40,
+                padding: '28px 0',
+                borderTop: '1px solid rgba(255,255,255,0.06)',
+                alignItems: 'start',
+              }}>
+                <div style={{ color: '#c8c8d8', fontWeight: 600, fontSize: 14, lineHeight: 1.4, paddingTop: 2 }}>
+                  {f.title}
+                </div>
+                <div style={{ color: '#7c8494', fontSize: 14, lineHeight: 1.75, maxWidth: 560 }}>
+                  {f.desc}
+                </div>
+              </div>
             ))}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
           </div>
         </div>
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section style={{ padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 60 }}>
-            <div style={{ color: '#3b82f6', fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
-              How It Works
-            </div>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 800, color: '#f0f0ff', letterSpacing: '-1px' }}>
-              Interview-ready in 4 steps
-            </h2>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 32 }}>
-            {steps.map((s, i) => (
-              <div key={i} style={{ textAlign: 'center' }}>
+      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '80px 40px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 700, color: '#f0f0f8', marginBottom: 48 }}>
+            How it works
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32 }}>
+            {steps.map((s) => (
+              <div key={s.n}>
                 <div style={{
-                  width: 52, height: 52, borderRadius: 16, margin: '0 auto 16px',
-                  background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.1))',
-                  border: '1px solid rgba(59,130,246,0.25)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#93c5fd', fontWeight: 800, fontSize: 20,
+                  fontSize: 11, fontWeight: 700, color: '#2563eb',
+                  fontFamily: 'monospace', marginBottom: 12, letterSpacing: '0.5px',
                 }}>
-                  {s.num}
+                  STEP {s.n}
                 </div>
-                <div style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{s.title}</div>
-                <div style={{ color: '#6b7280', fontSize: 14, lineHeight: 1.6 }}>{s.desc}</div>
+                <div style={{ color: '#dddde8', fontWeight: 600, fontSize: 14, marginBottom: 6 }}>{s.title}</div>
+                <div style={{ color: '#7c8494', fontSize: 13, lineHeight: 1.6 }}>{s.desc}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA BANNER ── */}
-      <section style={{ padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{
-          maxWidth: 760, margin: '0 auto',
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.08) 100%)',
-          border: '1px solid rgba(59,130,246,0.25)',
-          borderRadius: 24, padding: '60px 40px', textAlign: 'center',
-          position: 'relative', overflow: 'hidden',
-        }}>
-          <div style={{
-            position: 'absolute', top: -60, left: '50%', transform: 'translateX(-50%)',
-            width: 400, height: 300, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
-          <h2 style={{ fontSize: 'clamp(26px,4vw,40px)', fontWeight: 800, color: '#f0f0ff', letterSpacing: '-1px', marginBottom: 14 }}>
-            Ready to land your dream job?
+      {/* ── CTA ── */}
+      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '80px 40px' , background: '#0a0a14' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto'}}>
+          <h2 style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 700, color: '#f0f0f8', marginBottom: 10 }}>
+            Ready when you are.
           </h2>
-          <p style={{ color: '#9ca3af', fontSize: 16, marginBottom: 32 }}>
-            Free to use. No credit card. Start your first mock interview in under a minute.
+          <p style={{ color: '#7c8494', fontSize: 14, marginBottom: 28 }}>
+            Free to use. No credit card. Your first interview session takes under 2 minutes to set up.
           </p>
-          <Link to="/sign-up" style={{
-            display: 'inline-block',
-            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            color: '#fff', fontWeight: 700, fontSize: 16,
-            padding: '14px 36px', borderRadius: 12, textDecoration: 'none',
-            boxShadow: '0 0 32px rgba(59,130,246,0.4)',
-          }}>
-            Create Free Account →
-          </Link>
+          <PrimaryBtn to="/sign-up">Create a free account</PrimaryBtn>
         </div>
       </section>
 
       {/* Footer */}
       <footer style={{
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        padding: '32px 24px', textAlign: 'center',
-        color: '#374151', fontSize: 14,
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+        padding: '24px 40px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 12,
       }}>
-        © {new Date().getFullYear()} PrepAA — Preparation Assistant AI. All rights reserved.
+        <span style={{ color: '#2a2d38', fontSize: 12 }}>
+          © {new Date().getFullYear()} PrepAA
+        </span>
+        <span style={{ color: '#2a2d38', fontSize: 12 }}>
+          Preparation Assistant AI
+        </span>
       </footer>
     </div>
   )
 }
-
-function FeatureCard({ feature }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: hovered ? '#111120' : '#0d0d1a',
-        border: hovered ? '1px solid rgba(59,130,246,0.3)' : '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 16, padding: 28,
-        transition: 'all 0.2s ease',
-        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-        boxShadow: hovered ? '0 16px 40px rgba(0,0,0,0.4)' : 'none',
-      }}
-    >
-      <div style={{
-        width: 48, height: 48, borderRadius: 13, marginBottom: 20,
-        background: feature.gradient, display: 'flex',
-        alignItems: 'center', justifyContent: 'center', fontSize: 22,
-        boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
-      }}>
-        {feature.icon}
-      </div>
-      <div style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{feature.title}</div>
-      <div style={{ color: '#6b7280', fontSize: 14, lineHeight: 1.65 }}>{feature.desc}</div>
-    </div>
-  )
-}
-
