@@ -1,16 +1,27 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import * as LucideIcons from 'lucide-react'
-import { Upload, FileText, X } from 'lucide-react'
+import { 
+  BarChart2, 
+  Database, 
+  Layers, 
+  UploadCloud, 
+  FileText, 
+  X, 
+  ArrowLeft, 
+  Mic, 
+  Code2, 
+  BarChart3
+} from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { getProfile } from '../data/jobProfiles'
 import { useSessions } from '../hooks/useSessions'
 import { extractTextFromFile } from '../lib/resumeParser'
 
-function ProfileIcon({ name, size = 30, color }) {
-  const Icon = LucideIcons[name]
-  if (!Icon) return null
-  return <Icon size={size} color={color} strokeWidth={1.75} />
+const ICON_MAP = {
+  BarChart2: BarChart3,
+  Database: Database,
+  Layers: Layers,
+  Code2: Code2,
 }
 
 const RESUME_KEY = (id) => `prepai_resume_${id}`
@@ -20,16 +31,16 @@ export default function JobProfile() {
   const { profileId } = useParams()
   const navigate = useNavigate()
   const { addSession } = useSessions()
+  
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState(null)
-
   const [resumeText, setResumeText] = useState('')
   const [resumeFileName, setResumeFileName] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState(null)
-  const [uploadHovered, setUploadHovered] = useState(false)
 
   const profile = getProfile(profileId)
+  const IconComponent = profile ? (ICON_MAP[profile.icon] || Layers) : Layers
 
   useEffect(() => {
     if (!profileId) return
@@ -39,10 +50,11 @@ export default function JobProfile() {
 
   if (!profile) {
     return (
-      <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-        <div style={{ fontSize: 48 }}>🔍</div>
-        <h2 style={{ fontSize: 20, fontWeight: 700 }}>Profile not found</h2>
-        <Link to="/dashboard" style={{ color: '#3b82f6', fontSize: 14 }}>← Back to Dashboard</Link>
+      <div className="min-h-screen bg-[#092328] text-[#e6f4ec] flex flex-col items-center justify-center gap-4">
+        <h2 className="text-base font-bold text-[#8BBB92]">Track Profile Not Found</h2>
+        <Link to="/dashboard" className="text-xs text-[#88b8a5] hover:text-[#8BBB92]">
+          ← Return to Workspace
+        </Link>
       </div>
     )
   }
@@ -60,7 +72,7 @@ export default function JobProfile() {
       localStorage.setItem(RESUME_KEY(profileId), text)
       localStorage.setItem(RESUME_NAME_KEY(profileId), file.name)
     } catch (err) {
-      setUploadError(err.message || 'Failed to read file. Try a .txt file instead.')
+      setUploadError(err.message || 'Failed to parse file. Try a .txt or standard PDF format.')
     } finally {
       setUploading(false)
       e.target.value = ''
@@ -93,137 +105,104 @@ export default function JobProfile() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff' }}>
+    <div className="min-h-screen bg-[#050a08] text-white">
       <Navbar />
 
-      <main style={{ maxWidth: 780, margin: '0 auto', padding: '96px 24px 80px' }}>
-
-        {/* Back */}
-        <Link to="/dashboard" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          color: '#6b7280', fontSize: 14, textDecoration: 'none', marginBottom: 36,
-          transition: 'color 0.15s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.color = '#f0f0ff'}
-        onMouseLeave={e => e.currentTarget.style.color = '#6b7280'}>
-          ← Back to Dashboard
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+        
+        {/* Navigation Breadcrumb */}
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-1.5 text-xs text-[#a7c4b5] hover:text-[#2ea675] transition-colors mb-6"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Workspace</span>
         </Link>
 
-        {/* Header */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(37,99,235,0.05) 100%)',
-          border: '1px solid rgba(59,130,246,0.2)',
-          borderRadius: 20, padding: '32px 36px', marginBottom: 24,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 20,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: 16, flexShrink: 0,
-              background: `${profile.color}20`,
-              border: `1px solid ${profile.color}40`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}><ProfileIcon name={profile.icon} size={30} color={profile.color} /></div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                <h1 style={{ color: '#f0f0ff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.5px' }}>
+        {/* Hero Track Card */}
+        <div className="p-6 bg-[#0b281d] border border-[#134e38] mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-[#050a08] border border-[#134e38] text-[#2ea675] shrink-0">
+                <IconComponent className="w-6 h-6" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white tracking-tight mb-1">
                   {profile.title}
                 </h1>
-                <span style={{
-                  fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
-                  background: profile.level === 'Advanced' ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.15)',
-                  color: profile.level === 'Advanced' ? '#f59e0b' : '#3b82f6',
-                  border: profile.level === 'Advanced' ? '1px solid rgba(245,158,11,0.3)' : '1px solid rgba(59,130,246,0.3)',
-                }}>
-                  {profile.level}
-                </span>
-              </div>
-              <div style={{ color: '#10b981', fontSize: 14, fontWeight: 600 }}>
-                💰 {profile.salary}
+                <div className="text-xs text-[#2ea675] font-medium">
+                  Target Salary: {profile.salary}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end', flexShrink: 0 }}>
-            {error && (
-              <div style={{ color: '#f87171', fontSize: 13, maxWidth: 260, textAlign: 'right' }}>{error}</div>
-            )}
             <button
               onClick={handleStartInterview}
               disabled={starting}
-              style={{
-                background: starting ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                color: starting ? '#4b5563' : '#fff',
-                fontWeight: 700, fontSize: 15,
-                padding: '13px 28px', borderRadius: 12, border: 'none',
-                cursor: starting ? 'not-allowed' : 'pointer',
-                boxShadow: starting ? 'none' : '0 0 28px rgba(59,130,246,0.4)',
-                transition: 'all 0.2s', whiteSpace: 'nowrap',
-              }}>
-              {starting ? 'Starting…' : '🎤 Start Interview'}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#2ea675] hover:bg-[#3fb985] text-[#050a08] font-bold text-xs uppercase tracking-wider transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {starting ? (
+                <span>Initializing Studio…</span>
+              ) : (
+                <>
+                  <Mic className="w-3.5 h-3.5" />
+                  <span>Start Spoken Interview</span>
+                </>
+              )}
             </button>
           </div>
+
+          {error && (
+            <div className="mt-4 p-3 bg-[#050a08] border border-[#134e38] text-[#2ea675] text-xs">
+              {error}
+            </div>
+          )}
         </div>
 
-        {/* Resume Upload */}
-        <div style={{
-          background: '#0e0e1a',
-          border: `1px solid ${resumeText ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.07)'}`,
-          borderRadius: 16, padding: '22px 24px', marginBottom: 16,
-          transition: 'border-color 0.2s',
-        }}>
-          <SectionLabel>
-            Your Resume{' '}
-            <span style={{ color: '#374151', fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 11 }}>
-              optional · tailors questions to your background
-            </span>
-          </SectionLabel>
+        {/* Resume Grounding Container */}
+        <div className="p-5 bg-[#0b281d] border border-[#134e38] mb-6">
+          <div className="mb-2">
+            <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+              Attach Your Resume (Optional)
+            </h2>
+            <p className="text-xs text-[#a7c4b5]">
+              When you upload a resume, questions reference your actual past jobs, migrations, and tech stack instead of generic theory.
+            </p>
+          </div>
 
           {resumeText ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                <FileText size={16} color="#10b981" style={{ flexShrink: 0 }} />
-                <span style={{ color: '#10b981', fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {resumeFileName}
-                </span>
-                <span style={{ color: '#4b5563', fontSize: 12, whiteSpace: 'nowrap', flexShrink: 0 }}>
-                  · Questions tailored to your experience
-                </span>
+            <div className="p-3.5 bg-[#050a08] border border-[#134e38] flex items-center justify-between gap-4 mt-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <FileText className="w-4 h-4 text-[#2ea675] shrink-0" />
+                <div className="truncate">
+                  <div className="text-xs font-semibold text-white truncate">{resumeFileName}</div>
+                  <div className="text-xs text-[#a7c4b5]">
+                    Resume attached. Questions will target your real project history.
+                  </div>
+                </div>
               </div>
+
               <button
                 onClick={handleRemoveResume}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0,
-                  background: 'none', border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#6b7280', fontSize: 12, fontWeight: 500,
-                  padding: '5px 10px', borderRadius: 6, cursor: 'pointer',
-                }}>
-                <X size={12} /> Remove
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#134e38] hover:bg-[#2ea675] text-xs font-medium text-white hover:text-[#050a08] transition-colors border border-[#2ea675]"
+              >
+                <X className="w-3 h-3" />
+                <span>Remove</span>
               </button>
             </div>
           ) : (
-            <label
-              onMouseEnter={() => setUploadHovered(true)}
-              onMouseLeave={() => setUploadHovered(false)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                cursor: uploading ? 'not-allowed' : 'pointer',
-                padding: '16px 18px',
-                background: uploadHovered ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
-                border: `1px dashed ${uploadHovered ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'}`,
-                borderRadius: 10, transition: 'all 0.2s',
-              }}>
-              <Upload size={18} color={uploading ? '#4b5563' : '#6b7280'} />
-              <div>
-                <div style={{ color: uploading ? '#4b5563' : '#9ca3af', fontSize: 14, fontWeight: 500 }}>
-                  {uploading ? 'Parsing resume…' : 'Upload your resume'}
-                </div>
-                <div style={{ color: '#374151', fontSize: 12, marginTop: 2 }}>PDF or TXT · Max ~10 pages</div>
+            <label className="border border-[#134e38] hover:border-[#2ea675] p-6 flex flex-col items-center justify-center text-center cursor-pointer bg-[#050a08] transition-colors mt-3">
+              <UploadCloud className="w-6 h-6 text-[#2ea675] mb-2" />
+              <div className="text-xs font-bold text-white mb-0.5">
+                {uploading ? 'Reading resume text…' : 'Upload Your Resume (PDF or TXT)'}
+              </div>
+              <div className="text-xs text-[#a7c4b5]">
+                Click or drop your file here
               </div>
               <input
                 type="file"
                 accept=".pdf,.txt"
-                style={{ display: 'none' }}
+                className="hidden"
                 onChange={handleResumeUpload}
                 disabled={uploading}
               />
@@ -231,94 +210,51 @@ export default function JobProfile() {
           )}
 
           {uploadError && (
-            <div style={{ color: '#f87171', fontSize: 13, marginTop: 10 }}>{uploadError}</div>
+            <div className="mt-3 text-xs text-[#2ea675]">
+              {uploadError}
+            </div>
           )}
         </div>
 
-        {/* Description */}
-        <div style={{
-          background: '#0e0e1a', border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 16, padding: '24px', marginBottom: 16,
-        }}>
-          <SectionLabel>About This Role</SectionLabel>
-          <p style={{ color: '#d1d5db', fontSize: 15, lineHeight: 1.75, margin: 0 }}>
+        {/* Track Specifications Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          
+          {/* Tech Stack */}
+          <div className="p-5 bg-[#0b281d] border border-[#134e38]">
+            <h3 className="text-xs font-bold text-[#2ea675] uppercase tracking-wider mb-2">
+              Primary Technologies
+            </h3>
+            <p className="text-xs text-[#a7c4b5]">
+              {profile.techStack.join(', ')}
+            </p>
+          </div>
+
+          {/* Concepts Evaluated */}
+          <div className="p-5 bg-[#0b281d] border border-[#134e38]">
+            <h3 className="text-xs font-bold text-[#2ea675] uppercase tracking-wider mb-2">
+              Core Topics Covered
+            </h3>
+            <p className="text-xs text-[#a7c4b5]">
+              {profile.concepts.join(', ')}
+            </p>
+          </div>
+
+        </div>
+
+        {/* Scope & Hiring Focus */}
+        <div className="p-5 bg-[#0b281d] border border-[#134e38] mb-6">
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-2">
+            What the Interviewer Looks For
+          </h3>
+          <p className="text-xs sm:text-sm text-[#e5e7eb] leading-relaxed mb-3">
+            {profile.interviewFocus}
+          </p>
+          <p className="text-xs text-[#a7c4b5] leading-relaxed bg-[#050a08] p-3.5 border border-[#134e38]">
             {profile.description}
           </p>
         </div>
 
-        {/* Tech stack + Concepts */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-          <div style={{ background: '#0e0e1a', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px' }}>
-            <SectionLabel>Tech Stack</SectionLabel>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {profile.techStack.map(t => (
-                <span key={t} style={{
-                  background: `${profile.color}15`,
-                  border: `1px solid ${profile.color}35`,
-                  color: profile.color, fontSize: 13, fontWeight: 600,
-                  padding: '5px 12px', borderRadius: 8,
-                }}>{t}</span>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ background: '#0e0e1a', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px' }}>
-            <SectionLabel>Key Concepts</SectionLabel>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {profile.concepts.map(c => (
-                <span key={c} style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#9ca3af', fontSize: 13, fontWeight: 500,
-                  padding: '5px 12px', borderRadius: 8,
-                }}>{c}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Interview focus */}
-        <div style={{
-          background: '#0e0e1a', border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 16, padding: '24px', marginBottom: 24,
-        }}>
-          <SectionLabel>Interview Focus</SectionLabel>
-          <p style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.75, margin: 0 }}>
-            {profile.interviewFocus}
-          </p>
-        </div>
-
-        {/* What to expect */}
-        <div style={{
-          background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)',
-          borderRadius: 16, padding: '22px 24px',
-          display: 'flex', gap: 20, flexWrap: 'wrap',
-        }}>
-          {[
-            { icon: '🤖', label: 'AI Interviewer', desc: 'Conversational, human-like tone' },
-            { icon: '🎤', label: 'Voice Interview', desc: 'Speak your answers naturally' },
-            { icon: '📋', label: '5 Questions', desc: resumeText ? 'Tailored to your resume' : 'Mixed technical & behavioral' },
-            { icon: '📊', label: 'Instant Feedback', desc: 'Scored & detailed analysis' },
-          ].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: '1 1 160px' }}>
-              <span style={{ fontSize: 22 }}>{item.icon}</span>
-              <div>
-                <div style={{ color: '#f0f0ff', fontSize: 13, fontWeight: 600 }}>{item.label}</div>
-                <div style={{ color: resumeText && item.label === '5 Questions' ? '#10b981' : '#6b7280', fontSize: 12 }}>{item.desc}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
       </main>
-    </div>
-  )
-}
-
-function SectionLabel({ children }) {
-  return (
-    <div style={{ color: '#6b7280', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>
-      {children}
     </div>
   )
 }

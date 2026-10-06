@@ -1,38 +1,54 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { 
+  Layers, 
+  Database, 
+  Code2, 
+  BarChart3, 
+  Calendar, 
+  HelpCircle, 
+  Trash2, 
+  ArrowRight,
+  Briefcase
+} from 'lucide-react'
 
-const STATUS = {
-  pending:     { label: 'Not Started', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  border: 'rgba(245,158,11,0.25)' },
-  completed:   { label: 'Completed',   color: '#10b981', bg: 'rgba(16,185,129,0.1)',  border: 'rgba(16,185,129,0.25)' },
-  in_progress: { label: 'In Progress', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.25)' },
-}
-
-const ROLE_ICONS = {
-  'Frontend': '💻', 'Backend': '⚙️', 'Full': '🔧',
-  'Product': '📦', 'Design': '🎨', 'Data': '📊',
-  'DevOps': '🚀', 'Mobile': '📱',
-}
 function getRoleIcon(role = '') {
-  for (const [key, icon] of Object.entries(ROLE_ICONS)) {
-    if (role.toLowerCase().includes(key.toLowerCase())) return icon
-  }
-  return '🎯'
+  const r = role.toLowerCase()
+  if (r.includes('data engineer') || r.includes('database')) return Database
+  if (r.includes('data analyst') || r.includes('analytics')) return BarChart3
+  if (r.includes('ai') || r.includes('ml') || r.includes('machine learning')) return Code2
+  if (r.includes('stack') || r.includes('frontend') || r.includes('backend') || r.includes('software')) return Layers
+  return Briefcase
 }
 
 export default function SessionCard({ session, onDelete }) {
   const navigate = useNavigate()
-  const [hovered, setHovered] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const { id, role, company, created_at, status, question_count } = session
-  const date = new Date(created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-  const s = STATUS[status] || STATUS.pending
+  const { id, role, company, created_at, status, question_count, feedback } = session
+
+  const IconComponent = getRoleIcon(role)
+  const dateFormatted = new Date(created_at).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+
+  const isCompleted = status === 'completed'
+  const isInProgress = status === 'in_progress'
 
   const handleDelete = async (e) => {
     e.stopPropagation()
-    if (!confirmDelete) { setConfirmDelete(true); return }
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      return
+    }
     setDeleting(true)
-    try { await onDelete(id) } catch { setDeleting(false) }
+    try {
+      await onDelete(id)
+    } catch {
+      setDeleting(false)
+    }
   }
 
   const handleCancelDelete = (e) => {
@@ -43,116 +59,92 @@ export default function SessionCard({ session, onDelete }) {
   return (
     <div
       onClick={() => !confirmDelete && navigate(`/interview/${id}`)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setConfirmDelete(false) }}
-      style={{
-        cursor: confirmDelete ? 'default' : 'pointer',
-        background: hovered ? '#13131f' : '#0e0e1a',
-        border: hovered ? '1px solid rgba(59,130,246,0.4)' : '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 16,
-        padding: '24px',
-        transition: 'all 0.2s ease',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-        boxShadow: hovered ? '0 12px 40px rgba(59,130,246,0.12)' : '0 2px 12px rgba(0,0,0,0.3)',
-        display: 'flex', flexDirection: 'column', gap: 16,
-        position: 'relative',
-      }}
+      className="p-4 bg-[#0b281d] border border-[#134e38] hover:border-[#2ea675] flex flex-col justify-between cursor-pointer transition-colors"
     >
-      {/* Top row */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-            background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.15))',
-            border: '1px solid rgba(59,130,246,0.2)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 20,
-          }}>
-            {getRoleIcon(role)}
+      {/* Top Meta Bar */}
+      <div>
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-[#050a08] text-[#2ea675] border border-[#134e38]">
+              <IconComponent className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white leading-tight">
+                {role}
+              </h3>
+              {company && (
+                <div className="text-xs text-[#a7c4b5] mt-0.5">{company}</div>
+              )}
+            </div>
           </div>
-          <div>
-            <div style={{ color: '#f0f0ff', fontWeight: 600, fontSize: 15, lineHeight: 1.3 }}>{role}</div>
-            {company && (
-              <div style={{ color: '#6b7280', fontSize: 13, marginTop: 2 }}>{company}</div>
+
+          <div className="text-xs font-semibold text-[#2ea675]">
+            {isCompleted ? (
+              <span className="text-[#2ea675] font-bold">{feedback?.overall_score ? `${feedback.overall_score}/100` : 'Completed'}</span>
+            ) : isInProgress ? (
+              <span className="text-[#2ea675]">In Progress</span>
+            ) : (
+              <span className="text-[#a7c4b5]">Ready</span>
             )}
           </div>
         </div>
-        <span style={{
-          fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 20,
-          background: s.bg, color: s.color, border: `1px solid ${s.border}`,
-          whiteSpace: 'nowrap', flexShrink: 0,
-        }}>
-          {s.label}
-        </span>
+
+        {/* Details Row */}
+        <div className="flex items-center gap-4 text-xs text-[#a7c4b5] mb-4">
+          <div className="flex items-center gap-1">
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>{question_count || 5} Questions</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{dateFormatted}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Meta info */}
-      <div style={{ display: 'flex', gap: 16 }}>
-        <span style={{ color: '#4b5563', fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span style={{ fontSize: 14 }}>📋</span>
-          {question_count ?? '—'} questions
-        </span>
-        <span style={{ color: '#4b5563', fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span style={{ fontSize: 14 }}>📅</span>
-          {date}
-        </span>
-      </div>
-
-      {/* Footer */}
-      <div style={{
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        paddingTop: 14,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
+      {/* Card Action Footer */}
+      <div className="pt-3 border-t border-[#134e38] flex items-center justify-between text-xs">
         {confirmDelete ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-            <span style={{ color: '#f87171', fontSize: 13, flex: 1 }}>Delete this session?</span>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              style={{
-                background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
-                color: '#f87171', fontSize: 12, fontWeight: 700,
-                padding: '5px 12px', borderRadius: 7, cursor: 'pointer',
-              }}>
-              {deleting ? '…' : 'Yes, delete'}
-            </button>
-            <button
-              onClick={handleCancelDelete}
-              style={{
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                color: '#9ca3af', fontSize: 12, fontWeight: 600,
-                padding: '5px 12px', borderRadius: 7, cursor: 'pointer',
-              }}>
-              Cancel
-            </button>
+          <div className="flex items-center justify-between w-full" onClick={(e) => e.stopPropagation()}>
+            <span className="text-xs font-medium text-[#2ea675]">Delete session?</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-2.5 py-1 text-xs font-bold bg-[#2ea675] text-[#050a08] border border-[#3fb985] hover:bg-[#3fb985] transition-colors"
+              >
+                {deleting ? 'Deleting…' : 'Yes, Delete'}
+              </button>
+              <button
+                onClick={handleCancelDelete}
+                className="px-2.5 py-1 text-xs bg-[#050a08] text-[#a7c4b5] border border-[#134e38] hover:bg-[#0e3828] transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         ) : (
           <>
-            <span style={{ color: '#374151', fontSize: 12 }}>Click to begin interview</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="text-[#a7c4b5]">
+              {isCompleted ? 'Review report' : 'Resume session'}
+            </div>
+
+            <div className="flex items-center gap-2">
               <button
-                onClick={handleDelete}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: '#4b5563', fontSize: 15, padding: '2px 4px',
-                  lineHeight: 1, borderRadius: 6,
-                  transition: 'color 0.15s',
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setConfirmDelete(true)
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
-                onMouseLeave={(e) => e.currentTarget.style.color = '#4b5563'}
                 title="Delete session"
+                className="p-1 text-[#a7c4b5] hover:text-[#2ea675] transition-colors"
               >
-                🗑
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
-              <span style={{
-                color: '#3b82f6', fontSize: 13, fontWeight: 600,
-                transition: 'transform 0.15s',
-                transform: hovered ? 'translateX(3px)' : 'translateX(0)',
-                display: 'inline-block',
-              }}>
-                Start →
-              </span>
+
+              <div className="inline-flex items-center gap-1 text-[#2ea675] hover:text-white font-semibold">
+                <span>{isCompleted ? 'Report' : 'Start'}</span>
+                <ArrowRight className="w-3 h-3 text-[#2ea675]" />
+              </div>
             </div>
           </>
         )}

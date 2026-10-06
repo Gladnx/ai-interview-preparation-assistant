@@ -1,17 +1,18 @@
 import { SignIn } from '@clerk/react'
 import { Link } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 
 const clerkAppearance = {
   variables: {
-    colorPrimary: '#3b82f6',
-    colorBackground: '#0d0d1a',
-    colorText: '#f0f0ff',
-    colorTextSecondary: '#9ca3af',
-    colorInputBackground: 'rgba(255,255,255,0.05)',
-    colorInputText: '#f0f0ff',
-    colorNeutral: '#6b7280',
-    borderRadius: '10px',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    colorPrimary: '#2ea675',
+    colorBackground: '#0b281d',
+    colorText: '#ffffff',
+    colorTextSecondary: '#a7c4b5',
+    colorInputBackground: '#050a08',
+    colorInputText: '#ffffff',
+    colorNeutral: '#134e38',
+    borderRadius: '0px',
+    fontFamily: "'Instrument Sans', sans-serif",
   },
   elements: {
     rootBox: { width: '100%' },
@@ -20,128 +21,121 @@ const clerkAppearance = {
       boxShadow: 'none',
       border: 'none',
       padding: 0,
+      borderRadius: '0px',
     },
-    headerTitle: { color: '#f0f0ff', fontSize: '24px', fontWeight: 800 },
-    headerSubtitle: { color: '#6b7280' },
+    headerTitle: { color: '#ffffff', fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em' },
+    headerSubtitle: { color: '#a7c4b5', fontSize: '13px' },
     socialButtonsBlockButton: {
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.1)',
-      color: '#d1d5db',
+      background: '#050a08',
+      border: '1px solid #134e38',
+      color: '#ffffff',
+      borderRadius: '0px',
+      boxShadow: 'none',
     },
-    dividerLine: { background: 'rgba(255,255,255,0.08)' },
-    dividerText: { color: '#4b5563' },
-    formFieldLabel: { color: '#9ca3af', fontSize: '13px' },
+    dividerLine: { background: '#134e38' },
+    dividerText: { color: '#a7c4b5', fontSize: '11px', textTransform: 'uppercase' },
+    formFieldLabel: { color: '#a7c4b5', fontSize: '12px', fontWeight: 600 },
     formFieldInput: {
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      color: '#f0f0ff',
-      borderRadius: '10px',
+      background: '#050a08',
+      border: '1px solid #134e38',
+      color: '#ffffff',
+      borderRadius: '0px',
+      boxShadow: 'none',
     },
     formButtonPrimary: {
-      background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-      boxShadow: '0 0 24px rgba(59,130,246,0.35)',
+      background: '#2ea675',
+      color: '#050a08',
+      boxShadow: 'none',
       fontWeight: 700,
+      borderRadius: '0px',
+      fontSize: '13px',
     },
-    footerActionLink: { color: '#3b82f6', fontWeight: 600 },
-    identityPreviewText: { color: '#d1d5db' },
-    identityPreviewEditButton: { color: '#3b82f6' },
+    footerActionLink: { color: '#2ea675', fontWeight: 600 },
+    identityPreviewText: { color: '#ffffff' },
+    identityPreviewEditButton: { color: '#2ea675' },
   },
 }
 
 export default function SignInPage() {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: '#05050a' }}>
-      {/* Left brand panel */}
-      <div className="auth-panel" style={{
-        width: '45%', position: 'relative', overflow: 'hidden',
-        background: 'linear-gradient(160deg, #0a0a18 0%, #080814 100%)',
-        borderRight: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <div style={{
-          position: 'absolute', top: '15%', left: '20%',
-          width: 500, height: 500, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
-          filter: 'blur(60px)', pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'relative', padding: '48px',
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'space-between', height: '100%',
-        }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: 16, fontWeight: 800,
-              boxShadow: '0 0 20px rgba(59,130,246,0.4)',
-            }}>◆</div>
-            <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAA</span>
-          </Link>
-
-          <div>
-            <h2 style={{
-              color: '#f0f0ff', fontSize: 36, fontWeight: 800,
-              lineHeight: 1.15, letterSpacing: '-1px', marginBottom: 16,
-            }}>
-              Your AI Interview<br />Coach Awaits
-            </h2>
-            <p style={{ color: '#6b7280', fontSize: 16, lineHeight: 1.7, maxWidth: 340 }}>
-              Sign in to access your sessions, review feedback, and keep improving.
-            </p>
+    <div className="min-h-screen flex bg-[#050a08] text-white">
+      
+      {/* Left Product Hero Showcase */}
+      <div className="auth-panel w-[48%] relative bg-[#0b281d] border-r border-[#134e38] flex-col justify-between p-12 hidden">
+        
+        {/* Top Logo */}
+        <Link to="/" className="inline-flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-full bg-[#2ea675] text-[#050a08] flex items-center justify-center text-xs font-black">
+            P
           </div>
+          <span className="font-bold text-sm tracking-tight text-white">
+            PrepAA
+          </span>
+        </Link>
 
-          {/* Testimonial */}
-          <div style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 14, padding: '20px 22px',
-          }}>
-            <p style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.7, marginBottom: 14, fontStyle: 'italic' }}>
-              "PrepAA helped me land my dream job at Stripe. The voice interview practice is shockingly realistic."
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{
-                width: 34, height: 34, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: 13, fontWeight: 700,
-              }}>A</div>
-              <div>
-                <div style={{ color: '#f0f0ff', fontSize: 13, fontWeight: 600 }}>Alex M.</div>
-                <div style={{ color: '#6b7280', fontSize: 12 }}>Frontend Engineer</div>
-              </div>
+        {/* Center Copy */}
+        <div className="my-auto py-12">
+          <div className="text-xs font-semibold text-[#2ea675] uppercase tracking-wider mb-2">
+            Welcome Back
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight mb-4">
+            Pick up where you left off.
+          </h2>
+          <p className="text-xs sm:text-sm text-[#a7c4b5] leading-relaxed mb-6 max-w-sm">
+            Review your past interview transcripts, see how your scores are trending, or jump straight into another spoken mock session.
+          </p>
+
+          <div className="space-y-2.5 text-xs text-[#e5e7eb]">
+            <div className="flex items-center gap-2">
+              <span className="text-[#2ea675] font-bold">—</span>
+              <span>Realistic voice questions and follow-ups</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[#2ea675] font-bold">—</span>
+              <span>Questions grounded in your uploaded resume</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[#2ea675] font-bold">—</span>
+              <span>Specific coaching notes on each answer</span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Right: Clerk SignIn */}
-      <div style={{
-        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '40px 24px', overflowY: 'auto',
-      }}>
-        <div style={{ width: '100%', maxWidth: 420 }}>
-          {/* Mobile logo */}
-          <div className="mobile-logo" style={{ justifyContent: 'center', marginBottom: 36 }}>
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 10,
-                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: 16, fontWeight: 800,
-              }}>◆</div>
-              <span style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 20 }}>PrepAA</span>
-            </Link>
-          </div>
-
-          <SignIn
-            appearance={clerkAppearance}
-            forceRedirectUrl="/dashboard"
-            signUpUrl="/sign-up"
-          />
+        {/* Footer info */}
+        <div className="text-xs text-[#a7c4b5]">
+          PrepAA © {new Date().getFullYear()}
         </div>
       </div>
+
+      {/* Right Clerk Form */}
+      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 overflow-y-auto">
+        <div className="w-full max-w-md">
+          
+          {/* Mobile Back Link & Brand */}
+          <div className="mb-6 flex items-center justify-between">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs text-[#a7c4b5] hover:text-[#2ea675] transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to home</span>
+            </Link>
+
+            <div className="mobile-logo">
+              <span className="font-bold text-sm text-white">PrepAA</span>
+            </div>
+          </div>
+
+          <div className="p-6 sm:p-8 bg-[#0b281d] border border-[#134e38]">
+            <SignIn
+              appearance={clerkAppearance}
+              forceRedirectUrl="/dashboard"
+              signUpUrl="/sign-up"
+            />
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }

@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useUser } from '@clerk/react'
+import { 
+  Volume2, 
+  AlertCircle, 
+  ArrowLeft, 
+  Headphones, 
+  User
+} from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { useSessions } from '../hooks/useSessions'
 import { generateInterview, generateFeedback } from '../lib/gemini'
@@ -33,34 +40,32 @@ function speakText(text, { onEnd, onError } = {}) {
   window.speechSynthesis.speak(utterance)
 }
 
-// ─── Score colour ────────────────────────────────────────────────────────────
-
 function scoreColor(score) {
-  if (score >= 80) return '#10b981'
-  if (score >= 60) return '#f59e0b'
-  return '#ef4444'
+  if (score >= 80) return 'text-[#2ea675] bg-[#050a08] border-[#134e38]'
+  if (score >= 60) return 'text-[#2ea675] bg-[#050a08] border-[#134e38]'
+  return 'text-[#a7c4b5] bg-[#050a08] border-[#134e38]'
 }
-
-// ─── Animated waveform ───────────────────────────────────────────────────────
 
 function Waveform({ active }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 3, height: 32 }}>
-      {Array.from({ length: 20 }).map((_, i) => (
-        <div key={i} style={{
-          width: 3, borderRadius: 99,
-          background: active ? '#3b82f6' : 'rgba(59,130,246,0.2)',
-          height: active
-            ? `${Math.max(4, Math.sin((i / 20) * Math.PI * 2 + Date.now() / 300) * 14 + 18)}px`
-            : '4px',
-          transition: 'height 0.15s ease',
-        }} />
-      ))}
+    <div className="flex items-center gap-1 h-6">
+      {Array.from({ length: 24 }).map((_, i) => {
+        const height = active
+          ? Math.max(3, Math.sin((i / 24) * Math.PI * 2 + Date.now() / 250) * 10 + 12)
+          : 3
+        return (
+          <div
+            key={i}
+            className={`w-1 transition-all ${
+              active ? 'bg-[#2ea675]' : 'bg-[#134e38]'
+            }`}
+            style={{ height: `${height}px` }}
+          />
+        )
+      })}
     </div>
   )
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 const PHASE = {
   LOADING: 'loading',
@@ -85,7 +90,6 @@ export default function InterviewSession() {
   const [transcript, setTranscript] = useState('')
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  const [aiMessage, setAiMessage] = useState('')
   const [feedback, setFeedback] = useState(null)
   const [conversation, setConversation] = useState([])
   const [error, setError] = useState(null)
@@ -98,12 +102,10 @@ export default function InterviewSession() {
 
   const session = getSession(id)
 
-  // ── Auto-scroll conversation ────────────────────────────────────────────────
   useEffect(() => {
     conversationEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [conversation])
 
-  // ── Init speech recognition ─────────────────────────────────────────────────
   useEffect(() => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SR) return
@@ -127,32 +129,38 @@ export default function InterviewSession() {
     }
     r.onend = () => setIsListening(false)
     recognitionRef.current = r
-    return () => { r.abort(); window.speechSynthesis.cancel() }
+    return () => {
+      r.abort()
+      window.speechSynthesis.cancel()
+    }
   }, [])
 
-  // ── Speak helper ────────────────────────────────────────────────────────────
   const speak = useCallback((text, onEnd) => {
     setIsSpeaking(true)
     setWaveActive(true)
-    setAiMessage(text)
-    // Voices may load async — small delay
     setTimeout(() => {
       speakText(text, {
-        onEnd: () => { setIsSpeaking(false); setWaveActive(false); onEnd?.() },
-        onError: () => { setIsSpeaking(false); setWaveActive(false); onEnd?.() },
+        onEnd: () => {
+          setIsSpeaking(false)
+          setWaveActive(false)
+          onEnd?.()
+        },
+        onError: () => {
+          setIsSpeaking(false)
+          setWaveActive(false)
+          onEnd?.()
+        },
       })
     }, 100)
   }, [])
 
   const addMsg = useCallback((type, text) => {
-    setConversation(prev => [...prev, { type, text }])
+    setConversation(prev => [...prev, { type, text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
   }, [])
 
-  // ── Start interview once session loads ──────────────────────────────────────
   useEffect(() => {
     if (sessionsLoading || !session || startedRef.current) return
 
-    // If already completed — show stored feedback
     if (session.status === 'completed' && session.feedback) {
       setScript({ questions: session.questions || [] })
       setAnswers(session.answers || [])
@@ -164,7 +172,6 @@ export default function InterviewSession() {
 
     startedRef.current = true
 
-    // Check sessionStorage cache first — avoids re-calling Gemini on HMR/reload
     const cacheKey = `prepai_script_${id}`
     const cached = sessionStorage.getItem(cacheKey)
     if (cached) {
@@ -203,15 +210,12 @@ export default function InterviewSession() {
       .catch((err) => setError(err.message))
   }, [sessionsLoading, session?.id])
 
-  // ── Waveform animation tick ─────────────────────────────────────────────────
   const [, forceRender] = useState(0)
   useEffect(() => {
     if (!waveActive && !isListening) return
     const t = setInterval(() => forceRender(n => n + 1), 120)
     return () => clearInterval(t)
   }, [waveActive, isListening])
-
-  // ── Handlers ─────────────────────────────────────────────────────────────────
 
   const startListening = () => {
     transcriptRef.current = ''
@@ -225,30 +229,27 @@ export default function InterviewSession() {
     setIsListening(false)
   }
 
-  // User responds to greeting
   const handleRespondToGreeting = () => startListening()
 
   const handleGreetingDone = () => {
     stopListening()
-    const userText = transcriptRef.current.trim() || '...'
+    const userText = transcriptRef.current.trim() || "I'm ready, let's begin."
     addMsg('user', userText)
     transcriptRef.current = ''
     setTranscript('')
 
-    const firstQText = `${script.transition} Here's my first question: ${script.questions[0]}`
+    const firstQText = `${script.transition} Let's dive in: ${script.questions[0]}`
     setCurrentQ(0)
     setPhase(PHASE.QUESTIONING)
     addMsg('ai', firstQText)
     speak(firstQText)
   }
 
-  // User starts answering
   const handleStartAnswer = () => startListening()
 
-  // User submits answer / moves to next
   const handleNextQuestion = () => {
     stopListening()
-    const answer = transcriptRef.current.trim() || '(no answer provided)'
+    const answer = transcriptRef.current.trim() || '(No spoken response captured)'
     addMsg('user', answer)
     transcriptRef.current = ''
     setTranscript('')
@@ -259,7 +260,6 @@ export default function InterviewSession() {
     const next = currentQ + 1
 
     if (next >= script.questions.length) {
-      // All done — closing
       setPhase(PHASE.CLOSING)
       addMsg('ai', script.closing)
       speak(script.closing, () => {
@@ -282,78 +282,71 @@ export default function InterviewSession() {
           .catch((err) => setError(err.message))
       })
     } else {
-      // Next question
       setCurrentQ(next)
-      const intro = script.question_intros?.[next - 1] || 'Thank you.'
-      const qText = `${intro} ${script.questions[next]}`
+      const intro = script.question_intros?.[next - 1] || 'Got it.'
+      const qText = `${intro} Next question: ${script.questions[next]}`
       addMsg('ai', qText)
       speak(qText)
     }
   }
 
-  // ── Render guards ─────────────────────────────────────────────────────────
-
   if (sessionsLoading || phase === PHASE.LOADING) {
     return (
-      <div style={{ minHeight: '100vh', background: '#05050a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: '#4b5563', fontSize: 14 }}>Loading session…</div>
+      <div className="min-h-screen bg-[#050a08] text-[#a7c4b5] flex items-center justify-center text-xs">
+        Setting up your interview studio…
       </div>
     )
   }
 
   if (!session) {
     return (
-      <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-        <div style={{ fontSize: 48 }}>🔍</div>
-        <h2 style={{ fontSize: 20, fontWeight: 700 }}>Session not found</h2>
-        <Link to="/dashboard" style={{ color: '#3b82f6', fontSize: 14 }}>← Back to Dashboard</Link>
+      <div className="min-h-screen bg-[#050a08] text-white flex flex-col items-center justify-center gap-4">
+        <h2 className="text-base font-bold text-white">Interview Session Not Found</h2>
+        <Link to="/dashboard" className="text-xs text-[#a7c4b5] hover:text-[#2ea675]">
+          ← Return to Workspace
+        </Link>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32 }}>
-        <div style={{ fontSize: 48 }}>⚠️</div>
-        <h2 style={{ fontSize: 20, fontWeight: 700 }}>Something went wrong</h2>
-        <p style={{ color: '#ef4444', fontSize: 14, maxWidth: 480, textAlign: 'center' }}>{error}</p>
-        <Link to="/dashboard" style={{ color: '#3b82f6', fontSize: 14 }}>← Back to Dashboard</Link>
+      <div className="min-h-screen bg-[#050a08] text-white flex flex-col items-center justify-center gap-4 px-4 text-center">
+        <AlertCircle className="w-10 h-10 text-[#2ea675]" />
+        <h2 className="text-base font-bold text-white">Something went wrong</h2>
+        <p className="text-xs text-[#a7c4b5] max-w-md">{error}</p>
+        <Link to="/dashboard" className="text-xs text-[#a7c4b5] hover:text-[#2ea675]">
+          ← Return to Workspace
+        </Link>
       </div>
     )
   }
-
-  // ── Feedback screen ───────────────────────────────────────────────────────
 
   if (phase === PHASE.FEEDBACK && feedback) {
     return <FeedbackScreen session={session} script={script} answers={answers} feedback={feedback} navigate={navigate} />
   }
 
-  // ── Loading / preparing ───────────────────────────────────────────────────
-
   if (phase === PHASE.PREPARING || phase === PHASE.GEN_FEEDBACK) {
-    const msg = phase === PHASE.PREPARING
-      ? 'Preparing your personalised interview…'
-      : 'Analysing your responses and generating feedback…'
+    const isPrep = phase === PHASE.PREPARING
     return (
-      <div style={{ minHeight: '100vh', background: '#05050a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
-        <div style={{
-          width: 64, height: 64, borderRadius: 16,
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(37,99,235,0.2))',
-          border: '1px solid rgba(59,130,246,0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28,
-          animation: 'pulse 1.5s infinite',
-        }}>🤖</div>
-        <p style={{ color: '#9ca3af', fontSize: 15 }}>{msg}</p>
-        <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }`}</style>
+      <div className="min-h-screen bg-[#050a08] text-white flex flex-col items-center justify-center gap-4 px-4">
+        <div className="p-6 bg-[#0b281d] border border-[#134e38] text-center max-w-md">
+          <div className="text-sm font-bold text-white mb-1">
+            {isPrep ? 'Reviewing Your Resume & Role Requirements' : 'Analyzing Your Spoken Answers'}
+          </div>
+          <div className="text-xs text-[#a7c4b5]">
+            {isPrep 
+              ? 'Formulating realistic technical questions based on your background…' 
+              : 'Checking technical depth, clarity, and trade-offs…'}
+          </div>
+        </div>
       </div>
     )
   }
 
-  // ── Main interview UI ─────────────────────────────────────────────────────
-
   const isGreeting = phase === PHASE.GREETING
   const isQuestioning = phase === PHASE.QUESTIONING
-  const isClosing = phase === PHASE.CLOSING
+  const totalQuestions = script?.questions?.length || 5
 
   const showRespondBtn   = isGreeting && !isSpeaking && !isListening
   const showDoneGreeting = isGreeting && isListening
@@ -361,284 +354,336 @@ export default function InterviewSession() {
   const showNextQ        = isQuestioning && isListening
 
   return (
-    <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff' }}>
+    <div className="min-h-screen bg-[#050a08] text-white">
       <Navbar />
 
-      <main style={{ maxWidth: 900, margin: '0 auto', padding: '88px 24px 60px' }}>
-
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+        
+        {/* Studio Top Bar */}
+        <div className="p-4 bg-[#0b281d] border border-[#134e38] mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 style={{ color: '#f0f0ff', fontSize: 20, fontWeight: 800, letterSpacing: '-0.4px' }}>
-              {session.role}{session.company ? ` @ ${session.company}` : ''}
+            <h1 className="text-base font-bold text-white">
+              {session.role} {session.company ? `at ${session.company}` : ''}
             </h1>
-            <p style={{ color: '#4b5563', fontSize: 13, marginTop: 3 }}>
-              {isQuestioning ? `Question ${currentQ + 1} of ${script?.questions?.length ?? 5}` : 'Interview in progress'}
-            </p>
+            <div className="text-xs text-[#a7c4b5] mt-0.5">
+              {isQuestioning ? `Question ${currentQ + 1} of ${totalQuestions}` : isGreeting ? 'Warm-up & Greeting' : 'Wrapping Up'}
+            </div>
           </div>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)',
-            color: '#10b981', fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 99,
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
-            Live Session
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[#a7c4b5]">
+              Live Spoken Session
+            </span>
+
+            <button
+              onClick={() => {
+                window.speechSynthesis.cancel()
+                navigate('/dashboard')
+              }}
+              className="px-3 py-1 text-xs bg-[#050a08] hover:bg-[#0e3828] text-white border border-[#134e38] transition-colors"
+            >
+              Exit Studio
+            </button>
           </div>
         </div>
 
-        {/* Conversation transcript */}
-        <div style={{
-          background: '#0a0a14', border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 18, padding: '20px', marginBottom: 16,
-          maxHeight: 340, overflowY: 'auto',
-          display: 'flex', flexDirection: 'column', gap: 14,
-        }}>
-          {conversation.map((msg, i) => (
-            <div key={i} style={{
-              display: 'flex', gap: 12,
-              flexDirection: msg.type === 'user' ? 'row-reverse' : 'row',
-            }}>
-              <div style={{
-                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                background: msg.type === 'ai'
-                  ? 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(37,99,235,0.2))'
-                  : 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.15))',
-                border: msg.type === 'ai' ? '1px solid rgba(59,130,246,0.3)' : '1px solid rgba(16,185,129,0.25)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
-              }}>
-                {msg.type === 'ai' ? '🤖' : '🙂'}
+        {/* Question Step Blocks */}
+        {isQuestioning && (
+          <div className="grid grid-cols-5 gap-1.5 mb-4">
+            {Array.from({ length: totalQuestions }).map((_, idx) => (
+              <div
+                key={idx}
+                className={`h-1 transition-all ${
+                  idx <= currentQ
+                    ? 'bg-[#2ea675]'
+                    : 'bg-[#134e38]'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Audio Visualizer Stage */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          
+          {/* Interviewer Box */}
+          <div className="p-4 bg-[#0b281d] border border-[#134e38]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Headphones className="w-4 h-4 text-[#2ea675]" />
+                <span className="text-xs font-bold text-white">Alex (Lead Engineer)</span>
               </div>
-              <div style={{
-                maxWidth: '75%',
-                background: msg.type === 'ai' ? 'rgba(59,130,246,0.08)' : 'rgba(255,255,255,0.04)',
-                border: msg.type === 'ai' ? '1px solid rgba(59,130,246,0.15)' : '1px solid rgba(255,255,255,0.07)',
-                borderRadius: msg.type === 'ai' ? '4px 14px 14px 14px' : '14px 4px 14px 14px',
-                padding: '10px 14px',
-              }}>
-                <div style={{ color: msg.type === 'ai' ? '#93c5fd' : '#6ee7b7', fontSize: 11, fontWeight: 600, marginBottom: 5 }}>
-                  {msg.type === 'ai' ? 'Alex (Interviewer)' : 'You'}
+              <span className="text-xs text-[#a7c4b5]">
+                {isSpeaking ? 'Speaking' : 'Listening'}
+              </span>
+            </div>
+            <div className="flex justify-center py-1">
+              <Waveform active={waveActive} />
+            </div>
+          </div>
+
+          {/* Candidate Box */}
+          <div className="p-4 bg-[#0b281d] border border-[#134e38]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-[#2ea675]" />
+                <span className="text-xs font-bold text-white">{user?.firstName || 'Candidate'} (Your Mic)</span>
+              </div>
+              <span className="text-xs text-[#a7c4b5]">
+                {isListening ? 'Listening…' : 'Muted'}
+              </span>
+            </div>
+            <div className="flex justify-center py-1">
+              <Waveform active={isListening} />
+            </div>
+          </div>
+
+        </div>
+
+        {/* Live Transcript Exchange Feed */}
+        <div className="p-4 bg-[#0b281d] border border-[#134e38] mb-4 flex flex-col h-72 overflow-hidden">
+          <div className="text-xs font-bold text-white uppercase tracking-wider mb-3 pb-1 border-b border-[#134e38]">
+            Live Conversation Transcript
+          </div>
+
+          <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+            {conversation.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex flex-col ${msg.type === 'user' ? 'items-end' : 'items-start'}`}
+              >
+                <div className={`max-w-[85%] p-3 text-xs leading-relaxed border ${
+                  msg.type === 'user'
+                    ? 'bg-[#050a08] border-[#134e38] text-white'
+                    : 'bg-[#050a08] border-[#134e38] text-[#a7c4b5]'
+                }`}>
+                  <div className="flex items-center justify-between gap-3 text-xs text-[#a7c4b5] mb-1">
+                    <span className="font-semibold text-[#2ea675]">{msg.type === 'ai' ? 'Alex (Interviewer)' : 'You'}</span>
+                    <span className="text-[11px]">{msg.time}</span>
+                  </div>
+                  <p className="whitespace-pre-wrap">{msg.text}</p>
                 </div>
-                <p style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.65, margin: 0 }}>{msg.text}</p>
               </div>
-            </div>
-          ))}
-          <div ref={conversationEndRef} />
-        </div>
+            ))}
 
-        {/* AI speaking panel */}
-        <div style={{
-          background: '#0e0e1a', border: `1px solid ${isSpeaking ? 'rgba(59,130,246,0.4)' : 'rgba(255,255,255,0.07)'}`,
-          borderRadius: 16, padding: '18px 20px', marginBottom: 16,
-          transition: 'border-color 0.3s',
-          display: 'flex', alignItems: 'center', gap: 16,
-        }}>
-          <div style={{
-            width: 42, height: 42, borderRadius: 11, flexShrink: 0,
-            background: 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(37,99,235,0.15))',
-            border: '1px solid rgba(59,130,246,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
-          }}>🤖</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: '#6b7280', fontSize: 11, fontWeight: 600, marginBottom: 4 }}>
-              {isSpeaking ? 'Alex is speaking…' : 'Alex'}
-            </div>
-            <Waveform active={waveActive} />
+            {/* Live speech preview */}
+            {isListening && transcript && (
+              <div className="flex flex-col items-end">
+                <div className="max-w-[85%] p-3 text-xs leading-relaxed border bg-[#050a08] border-[#2ea675] text-white">
+                  <div className="text-xs text-[#2ea675] mb-1">Transcribing speech in real-time…</div>
+                  <p>{transcript}</p>
+                </div>
+              </div>
+            )}
+
+            <div ref={conversationEndRef} />
           </div>
         </div>
 
-        {/* User response panel */}
-        <div style={{
-          background: '#0e0e1a', border: `1px solid ${isListening ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.07)'}`,
-          borderRadius: 16, padding: '18px 20px', marginBottom: 20,
-          transition: 'border-color 0.3s', minHeight: 90,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <div style={{ color: '#6b7280', fontSize: 11, fontWeight: 600 }}>
-              {isListening ? '🎤 Listening…' : 'Your response'}
-            </div>
-            {isListening && <Waveform active={true} />}
+        {/* Control Dock */}
+        <div className="p-4 bg-[#0b281d] border border-[#134e38] flex flex-wrap items-center justify-between gap-3">
+          <div className="text-xs text-[#a7c4b5]">
+            {isSpeaking ? (
+              <span>Alex is speaking. Listen carefully to the question.</span>
+            ) : isListening ? (
+              <span className="text-[#2ea675] font-medium">Your mic is live. Speak your response, then click below when finished.</span>
+            ) : isGreeting ? (
+              <span>Say hello or let Alex know you are ready to start.</span>
+            ) : (
+              <span>Take a breath, gather your thoughts, and click "Start Speaking" when ready.</span>
+            )}
           </div>
-          <p style={{
-            color: transcript ? '#d1d5db' : '#374151',
-            fontSize: 14, lineHeight: 1.65, margin: 0,
-            fontStyle: transcript ? 'normal' : 'italic',
-          }}>
-            {transcript || (isListening ? 'Start speaking now…' : 'Your spoken answer will appear here.')}
-          </p>
+
+          <div className="flex items-center gap-2 text-xs">
+            {showRespondBtn && (
+              <button
+                onClick={handleRespondToGreeting}
+                className="px-4 py-2 bg-[#2ea675] hover:bg-[#3fb985] text-[#050a08] font-bold uppercase tracking-wider transition-colors"
+              >
+                Respond to Greeting
+              </button>
+            )}
+
+            {showDoneGreeting && (
+              <button
+                onClick={handleGreetingDone}
+                className="px-4 py-2 bg-[#2ea675] hover:bg-[#3fb985] text-[#050a08] font-bold uppercase tracking-wider transition-colors"
+              >
+                Proceed to Q1 →
+              </button>
+            )}
+
+            {showStartAnswer && (
+              <button
+                onClick={handleStartAnswer}
+                className="px-4 py-2 bg-[#2ea675] hover:bg-[#3fb985] text-[#050a08] font-bold uppercase tracking-wider transition-colors"
+              >
+                Start Speaking Answer
+              </button>
+            )}
+
+            {showNextQ && (
+              <button
+                onClick={handleNextQuestion}
+                className="px-4 py-2 bg-[#2ea675] hover:bg-[#3fb985] text-[#050a08] font-bold uppercase tracking-wider transition-colors"
+              >
+                {currentQ + 1 >= totalQuestions ? 'Finish Interview' : 'Submit Answer & Next →'}
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Controls */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-
-          {showRespondBtn && (
-            <button onClick={handleRespondToGreeting} style={btnStyle('#10b981', 'rgba(16,185,129,0.15)', 'rgba(16,185,129,0.3)')}>
-              🎤 Respond to Greeting
-            </button>
-          )}
-
-          {showDoneGreeting && (
-            <button onClick={handleGreetingDone} style={btnStyle('#3b82f6', 'rgba(59,130,246,0.15)', 'rgba(59,130,246,0.3)')}>
-              Done Responding →
-            </button>
-          )}
-
-          {showStartAnswer && (
-            <button onClick={handleStartAnswer} style={btnStyle('#10b981', 'rgba(16,185,129,0.15)', 'rgba(16,185,129,0.3)')}>
-              🎤 Start Speaking
-            </button>
-          )}
-
-          {showNextQ && (
-            <button onClick={handleNextQuestion} style={btnStyle('#3b82f6', 'rgba(59,130,246,0.15)', 'rgba(59,130,246,0.3)')}>
-              {currentQ + 1 >= (script?.questions?.length ?? 5) ? 'Finish Interview ✓' : 'Next Question →'}
-            </button>
-          )}
-
-          {(isClosing || phase === PHASE.GEN_FEEDBACK) && (
-            <div style={{ color: '#4b5563', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ animation: 'pulse 1.5s infinite', display: 'inline-block' }}>⏳</span>
-              {isClosing ? 'Wrapping up…' : 'Generating feedback…'}
-            </div>
-          )}
-
-          <button
-            onClick={() => { window.speechSynthesis.cancel(); navigate('/dashboard') }}
-            style={{ ...btnStyle('#ef4444', 'rgba(239,68,68,0.1)', 'rgba(239,68,68,0.25)'), marginLeft: 'auto' }}>
-            ⏹ End Session
-          </button>
-        </div>
-
-        <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }`}</style>
       </main>
     </div>
   )
 }
 
-// ─── Feedback screen ──────────────────────────────────────────────────────────
+// ─── Diagnostic Feedback Screen ──────────────────────────────────────────────
 
 function FeedbackScreen({ session, script, answers, feedback, navigate }) {
-  const color = scoreColor(feedback.overall_score)
+  const score = feedback?.overall_score || 80
 
   return (
-    <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff' }}>
+    <div className="min-h-screen bg-[#050a08] text-white">
       <Navbar />
-      <main style={{ maxWidth: 800, margin: '0 auto', padding: '96px 24px 80px' }}>
 
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <div style={{ color: '#3b82f6', fontSize: 13, fontWeight: 600, marginBottom: 10 }}>Interview Complete</div>
-          <h1 style={{ color: '#f0f0ff', fontSize: 32, fontWeight: 800, letterSpacing: '-0.8px', marginBottom: 8 }}>
-            Your Feedback
-          </h1>
-          <p style={{ color: '#6b7280', fontSize: 15 }}>
-            {session.role}{session.company ? ` @ ${session.company}` : ''}
-          </p>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+        
+        {/* Header Navigation */}
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-1.5 text-xs text-[#a7c4b5] hover:text-[#2ea675] transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Workspace</span>
+          </Link>
+
+          <span className="text-xs text-[#a7c4b5] font-semibold">
+            Interview Completed
+          </span>
         </div>
 
-        {/* Overall score */}
-        <div style={{
-          background: '#0e0e1a', border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 20, padding: '32px', marginBottom: 20, textAlign: 'center',
-        }}>
-          <div style={{ color: color, fontSize: 72, fontWeight: 900, lineHeight: 1, marginBottom: 8 }}>
-            {feedback.overall_score}
-          </div>
-          <div style={{ color: '#6b7280', fontSize: 13, marginBottom: 16 }}>Overall Score / 100</div>
-          <p style={{ color: '#d1d5db', fontSize: 15, lineHeight: 1.7, maxWidth: 560, margin: '0 auto' }}>
-            {feedback.overall_summary}
-          </p>
-        </div>
-
-        {/* Strengths & Improvements */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-          <div style={{ background: '#0e0e1a', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 16, padding: '22px' }}>
-            <div style={{ color: '#10b981', fontSize: 13, fontWeight: 700, marginBottom: 14 }}>✓ Strengths</div>
-            {feedback.strengths?.map((s, i) => (
-              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'flex-start' }}>
-                <span style={{ color: '#10b981', fontSize: 14, flexShrink: 0, marginTop: 1 }}>•</span>
-                <span style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.5 }}>{s}</span>
+        {/* Scorecard Hero */}
+        <div className="p-6 bg-[#0b281d] border border-[#134e38] mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div>
+              <div className="text-xs font-bold text-[#2ea675] uppercase tracking-wider mb-1">
+                Interview Feedback · {session.role}
               </div>
-            ))}
-          </div>
-          <div style={{ background: '#0e0e1a', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 16, padding: '22px' }}>
-            <div style={{ color: '#f59e0b', fontSize: 13, fontWeight: 700, marginBottom: 14 }}>↑ To Improve</div>
-            {feedback.improvements?.map((s, i) => (
-              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'flex-start' }}>
-                <span style={{ color: '#f59e0b', fontSize: 14, flexShrink: 0, marginTop: 1 }}>•</span>
-                <span style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.5 }}>{s}</span>
+              <h1 className="text-xl font-bold text-white tracking-tight mb-2">
+                Performance Breakdown
+              </h1>
+              <p className="text-xs sm:text-sm text-[#a7c4b5] leading-relaxed max-w-lg">
+                {feedback.overall_summary}
+              </p>
+            </div>
+
+            {/* Score Box */}
+            <div className="p-4 border border-[#134e38] bg-[#050a08] text-center min-w-[120px]">
+              <div className="text-3xl font-extrabold text-[#2ea675] mb-0.5">
+                {score}
               </div>
-            ))}
+              <div className="text-xs uppercase tracking-wider text-[#a7c4b5] font-semibold">
+                Score / 100
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Per-question breakdown */}
-        <div style={{ background: '#0e0e1a', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '24px', marginBottom: 32 }}>
-          <div style={{ color: '#9ca3af', fontSize: 13, fontWeight: 700, marginBottom: 20 }}>Question Breakdown</div>
-          {script?.questions?.map((q, i) => {
-            const qfb = feedback.questions?.[i]
-            const c = scoreColor(qfb?.score ?? 70)
-            return (
-              <div key={i} style={{
-                borderBottom: i < script.questions.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                paddingBottom: i < script.questions.length - 1 ? 20 : 0,
-                marginBottom: i < script.questions.length - 1 ? 20 : 0,
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 8 }}>
-                  <div style={{ color: '#9ca3af', fontSize: 12, fontWeight: 600 }}>Q{i + 1}</div>
-                  <div style={{
-                    color: c, fontSize: 13, fontWeight: 700,
-                    background: `${c}18`, border: `1px solid ${c}40`,
-                    padding: '2px 10px', borderRadius: 20, flexShrink: 0,
-                  }}>{qfb?.score ?? '—'}/100</div>
+        {/* Strengths & Growth Matrix */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          
+          {/* Strengths */}
+          <div className="p-5 bg-[#0b281d] border border-[#134e38]">
+            <div className="text-xs font-bold text-white uppercase tracking-wider mb-3">
+              What You Did Well
+            </div>
+            <ul className="space-y-2.5">
+              {feedback.strengths?.map((str, idx) => (
+                <li key={idx} className="text-xs text-[#e5e7eb] flex items-start gap-2 leading-relaxed">
+                  <span className="text-[#2ea675] font-bold">—</span>
+                  <span>{str}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Growth Areas */}
+          <div className="p-5 bg-[#0b281d] border border-[#134e38]">
+            <div className="text-xs font-bold text-white uppercase tracking-wider mb-3">
+              What to Work On
+            </div>
+            <ul className="space-y-2.5">
+              {feedback.improvements?.map((imp, idx) => (
+                <li key={idx} className="text-xs text-[#e5e7eb] flex items-start gap-2 leading-relaxed">
+                  <span className="text-[#2ea675] font-bold">—</span>
+                  <span>{imp}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+        </div>
+
+        {/* Question Breakdown Diagnostics */}
+        <div className="p-5 bg-[#0b281d] border border-[#134e38] mb-6">
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider mb-4 pb-2 border-b border-[#134e38]">
+            Question by Question Review
+          </h2>
+
+          <div className="space-y-6">
+            {script?.questions?.map((q, i) => {
+              const qfb = feedback.questions?.[i]
+              const qScore = qfb?.score || 70
+
+              return (
+                <div key={i} className="pt-4 first:pt-0 border-t first:border-t-0 border-[#134e38]">
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <span className="text-xs font-bold text-[#2ea675]">
+                      Question {i + 1}
+                    </span>
+                    <span className="text-xs font-bold text-[#2ea675]">
+                      {qScore} / 100
+                    </span>
+                  </div>
+
+                  <h3 className="text-xs sm:text-sm font-semibold text-white mb-2 leading-snug">
+                    {q}
+                  </h3>
+
+                  {/* Candidate Answer */}
+                  <div className="p-3 bg-[#050a08] border border-[#134e38] mb-2">
+                    <div className="text-xs font-medium text-[#a7c4b5] uppercase mb-1">
+                      Your Spoken Answer:
+                    </div>
+                    <p className="text-xs text-[#e5e7eb] italic leading-relaxed">
+                      "{answers[i] || 'No speech recorded.'}"
+                    </p>
+                  </div>
+
+                  {/* Reviewer Advice */}
+                  <div className="text-xs text-[#a7c4b5] leading-relaxed bg-[#050a08] border border-[#134e38] p-3">
+                    <span className="font-bold text-[#2ea675]">Reviewer Advice: </span>
+                    {qfb?.feedback || 'Good structural explanation. Keep focusing on concrete system trade-offs.'}
+                  </div>
                 </div>
-                <p style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.6, marginBottom: 8 }}>{q}</p>
-                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '10px 14px', marginBottom: 8 }}>
-                  <div style={{ color: '#4b5563', fontSize: 11, fontWeight: 600, marginBottom: 4 }}>YOUR ANSWER</div>
-                  <p style={{ color: '#9ca3af', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{answers[i] || '(no answer)'}</p>
-                </div>
-                <p style={{ color: '#6b7280', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-                  💬 {qfb?.feedback}
-                </p>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
 
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+        {/* Bottom Actions */}
+        <div className="flex items-center justify-center">
           <button
             onClick={() => navigate('/dashboard')}
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              color: '#fff', fontWeight: 700, fontSize: 15,
-              padding: '13px 28px', borderRadius: 12, border: 'none',
-              cursor: 'pointer', boxShadow: '0 0 24px rgba(59,130,246,0.35)',
-            }}>
-            ← Back to Dashboard
-          </button>
-          <button
-            onClick={() => navigate('/dashboard')}
-            style={{
-              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-              color: '#9ca3af', fontWeight: 600, fontSize: 15,
-              padding: '13px 28px', borderRadius: 12, cursor: 'pointer',
-            }}>
-            New Session
+            className="px-6 py-2.5 bg-[#2ea675] hover:bg-[#3fb985] text-[#050a08] font-bold text-xs uppercase tracking-wider transition-colors"
+          >
+            Return to Workspace
           </button>
         </div>
+
       </main>
     </div>
   )
-}
-
-// ─── Button style helper ──────────────────────────────────────────────────────
-function btnStyle(color, bg, border) {
-  return {
-    flex: 1, minWidth: 160,
-    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    background: bg, border: `1px solid ${border}`,
-    color, fontWeight: 700, fontSize: 15,
-    padding: '13px 20px', borderRadius: 12, cursor: 'pointer',
-    transition: 'all 0.15s',
-  }
 }

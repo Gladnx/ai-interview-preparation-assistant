@@ -1,156 +1,176 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth, useUser, useClerk } from '@clerk/react'
-
-function useWindowWidth() {
-  const [width, setWidth] = useState(window.innerWidth)
-  useEffect(() => {
-    const handler = () => setWidth(window.innerWidth)
-    window.addEventListener('resize', handler)
-    return () => window.removeEventListener('resize', handler)
-  }, [])
-  return width
-}
-
-function GhostLink({ to, children }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <Link
-      to={to}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        color: hovered ? '#e5e7eb' : '#9ca3af',
-        background: hovered ? 'rgba(255,255,255,0.06)' : 'transparent',
-        textDecoration: 'none', fontSize: 13, fontWeight: 500,
-        padding: '7px 12px', borderRadius: 7,
-        display: 'inline-block',
-        transition: 'all 0.15s ease',
-      }}
-    >
-      {children}
-    </Link>
-  )
-}
-
-function GhostButton({ onClick, children }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        color: hovered ? '#e5e7eb' : '#9ca3af',
-        background: hovered ? 'rgba(255,255,255,0.06)' : 'transparent',
-        fontSize: 13, fontWeight: 500,
-        padding: '7px 12px', borderRadius: 7,
-        border: 'none', cursor: 'pointer',
-        transition: 'all 0.15s ease',
-      }}
-    >
-      {children}
-    </button>
-  )
-}
-
-function PrimaryLink({ to, children }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <Link
-      to={to}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        color: '#fff', textDecoration: 'none', fontSize: 13, fontWeight: 600,
-        padding: '7px 16px', borderRadius: 7,
-        background: hovered ? '#2563eb' : '#1d4ed8',
-        display: 'inline-block',
-        transition: 'background 0.15s ease',
-      }}
-    >
-      {children}
-    </Link>
-  )
-}
+import { LayoutDashboard, LogOut, ArrowRight, Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const { isSignedIn } = useAuth()
   const { user } = useUser()
   const { signOut } = useClerk()
-  const width = useWindowWidth()
-  const isMobile = width < 640
+  const location = useLocation()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSignOut = () => signOut({ redirectUrl: '/' })
+  const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/job') || location.pathname.startsWith('/interview')
 
   return (
-    <header style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: '#07070f',
-      borderBottom: '1px solid rgba(255,255,255,0.08)',
-    }}>
-      <div style={{
-        maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 20px' : '0 32px',
-        height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 6,
-            background: '#2563eb',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, color: '#fff', fontWeight: 800,
-            flexShrink: 0,
-          }}>◆</div>
-          <span style={{ color: '#e8e8f0', fontWeight: 700, fontSize: 16, letterSpacing: '-0.3px' }}>PrepAA</span>
+    <header className="fixed top-3.5 left-3.5 right-3.5 z-50 max-w-5xl mx-auto">
+      <div className="bg-[#050a08] border border-[#134e38] rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between shadow-none">
+        
+        {/* Brand */}
+        <Link to="/" className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-full bg-[#2ea675] text-[#050a08] flex items-center justify-center text-xs font-black">
+            P
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sm tracking-tight text-white">
+              PrepAA
+            </span>
+          </div>
         </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        {/* Center Links */}
+        <nav className="hidden md:flex items-center gap-1">
           {isSignedIn ? (
-            <>
-              {!isMobile && <GhostLink to="/dashboard">Dashboard</GhostLink>}
-              {isMobile && <GhostLink to="/dashboard">Dashboard</GhostLink>}
+            <Link
+              to="/dashboard"
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                isDashboard ? 'text-[#2ea675] bg-[#0b281d] border border-[#134e38]' : 'text-[#a7c4b5] hover:text-[#2ea675] hover:bg-[#0b281d]'
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Workspace</span>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-6 text-xs font-medium text-[#a7c4b5]">
+              <a href="#tracks" className="hover:text-[#2ea675] transition-colors">Role Tracks</a>
+              <a href="#features" className="hover:text-[#2ea675] transition-colors">Why Out Loud</a>
+              <a href="#rubric" className="hover:text-[#2ea675] transition-colors">Evaluation Rubric</a>
+              <a href="#how-it-works" className="hover:text-[#2ea675] transition-colors">How It Works</a>
+            </div>
+          )}
+        </nav>
 
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                padding: '4px 10px 4px 4px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 8,
-                marginLeft: 4,
-              }}>
+        {/* Right CTA */}
+        <div className="flex items-center gap-2.5">
+          {isSignedIn ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-lg bg-[#0b281d] border border-[#134e38]">
                 {user?.imageUrl ? (
                   <img
                     src={user.imageUrl}
                     alt="avatar"
-                    style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
+                    className="w-5 h-5 rounded-full object-cover border border-[#134e38]"
                   />
                 ) : (
-                  <div style={{
-                    width: 24, height: 24, borderRadius: '50%',
-                    background: '#1d4ed8',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#fff', fontSize: 11, fontWeight: 700,
-                  }}>
-                    {user?.firstName?.[0] ?? '?'}
+                  <div className="w-5 h-5 rounded-full bg-[#134e38] text-[#2ea675] flex items-center justify-center text-[10px] font-bold">
+                    {user?.firstName?.[0] || 'U'}
                   </div>
                 )}
-                {!isMobile && (
-                  <span style={{ color: '#d1d5db', fontSize: 13, fontWeight: 500 }}>
-                    {user?.firstName ?? 'User'}
-                  </span>
-                )}
+                <span className="text-xs font-medium text-white max-w-[110px] truncate hidden sm:inline">
+                  {user?.firstName || 'Candidate'}
+                </span>
               </div>
 
-              <GhostButton onClick={handleSignOut}>{isMobile ? 'Out' : 'Sign Out'}</GhostButton>
-            </>
+              <button
+                onClick={handleSignOut}
+                title="Sign out"
+                className="p-1.5 rounded-lg text-[#a7c4b5] hover:text-white hover:bg-[#0b281d] border border-transparent hover:border-[#134e38] transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                to="/sign-in"
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#a7c4b5] hover:text-white transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/sign-up"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#2ea675] hover:bg-[#3fb985] text-[#050a08] transition-colors"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-1.5 rounded-lg text-[#a7c4b5] hover:text-white"
+          >
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
+        </div>
+
+      </div>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden mt-1.5 p-3 rounded-xl bg-[#050a08] border border-[#134e38] flex flex-col gap-2">
+          {isSignedIn ? (
+            <Link
+              to="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 p-2 rounded-lg text-xs font-medium text-[#2ea675] bg-[#0b281d] border border-[#134e38]"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5 text-[#2ea675]" />
+              <span>Workspace</span>
+            </Link>
           ) : (
             <>
-              {!isMobile && <GhostLink to="/sign-in">Sign In</GhostLink>}
-              <PrimaryLink to="/sign-up">{isMobile ? 'Sign up' : 'Get Started'}</PrimaryLink>
+              <a
+                href="#tracks"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-2 py-1.5 rounded-lg text-xs text-[#a7c4b5] hover:text-[#2ea675]"
+              >
+                Role Tracks
+              </a>
+              <a
+                href="#features"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-2 py-1.5 rounded-lg text-xs text-[#a7c4b5] hover:text-[#2ea675]"
+              >
+                Why Out Loud
+              </a>
+              <a
+                href="#rubric"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-2 py-1.5 rounded-lg text-xs text-[#a7c4b5] hover:text-[#2ea675]"
+              >
+                Evaluation Rubric
+              </a>
+              <a
+                href="#how-it-works"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-2 py-1.5 rounded-lg text-xs text-[#a7c4b5] hover:text-[#2ea675]"
+              >
+                How It Works
+              </a>
+              <div className="pt-2 border-t border-[#134e38] flex flex-col gap-1.5">
+                <Link
+                  to="/sign-in"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-1.5 rounded-lg text-xs font-medium text-white bg-[#0b281d] border border-[#134e38]"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/sign-up"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-1.5 rounded-lg text-xs font-bold bg-[#2ea675] text-[#050a08]"
+                >
+                  Create Account
+                </Link>
+              </div>
             </>
           )}
         </div>
-      </div>
+      )}
     </header>
   )
 }

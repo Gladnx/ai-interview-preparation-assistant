@@ -1,115 +1,118 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useUser } from '@clerk/react'
-import * as LucideIcons from 'lucide-react'
+import { 
+  BarChart2, 
+  Database, 
+  Layers, 
+  Clock, 
+  FileText, 
+  ChevronRight,
+  Code2,
+  BarChart3
+} from 'lucide-react'
 import Navbar from '../components/Navbar'
 import SessionCard from '../components/SessionCard'
 import { useSessions } from '../hooks/useSessions'
 import { JOB_PROFILES } from '../data/jobProfiles'
 
-function ProfileIcon({ name, size = 24, color }) {
-  const Icon = LucideIcons[name]
-  if (!Icon) return null
-  return <Icon size={size} color={color} strokeWidth={1.75} />
+const ICON_MAP = {
+  BarChart2: BarChart3,
+  Database: Database,
+  Layers: Layers,
+  Code2: Code2,
 }
 
 export default function Dashboard() {
   const { user } = useUser()
   const { sessions, loading, deleteSession } = useSessions()
 
-  const completedCount = sessions.filter(s => s.status === 'completed').length
-  const inProgressCount = sessions.filter(s => s.status === 'in_progress').length
+  const completedSessions = sessions.filter(s => s.status === 'completed')
+  const inProgressSessions = sessions.filter(s => s.status === 'in_progress')
+  
+  const avgScore = completedSessions.length > 0 
+    ? Math.round(completedSessions.reduce((acc, s) => acc + (s.feedback?.overall_score || 75), 0) / completedSessions.length)
+    : null
 
   return (
-    <div style={{ minHeight: '100vh', background: '#05050a', color: '#f0f0ff' }}>
+    <div className="min-h-screen bg-[#050a08] text-white">
       <Navbar />
 
-      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '96px 32px 64px' }}>
-
-        {/* Welcome banner */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(37,99,235,0.06) 100%)',
-          border: '1px solid rgba(59,130,246,0.2)',
-          borderRadius: 20, padding: '32px 36px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 20, marginBottom: 40,
-          position: 'relative', overflow: 'hidden',
-        }}>
-          <div style={{
-            position: 'absolute', right: -40, top: -40,
-            width: 220, height: 220, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
-          <div>
-            <div style={{ color: '#93c5fd', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-              👋 Welcome back{user?.firstName ? `, ${user.firstName}` : ''}
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+        
+        {/* Workspace Summary Bar */}
+        <div className="p-6 bg-[#0b281d] border border-[#134e38] mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <h1 className="text-2xl font-bold text-white tracking-tight">
+                Interview Practice Dashboard
+              </h1>
+              <p className="text-xs sm:text-sm text-[#a7c4b5] mt-1 max-w-lg">
+                Choose a role track to start a spoken simulation or review previous evaluation feedback reports.
+              </p>
             </div>
-            <h1 style={{ color: '#f0f0ff', fontSize: 26, fontWeight: 800, letterSpacing: '-0.5px', marginBottom: 6 }}>
-              Your Interview Dashboard
-            </h1>
-            <p style={{ color: '#6b7280', fontSize: 14 }}>
-              Pick a role below, start a voice interview, and get instant AI feedback.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: 20 }}>
-            {[
-              { label: 'Completed', value: completedCount, color: '#10b981' },
-              { label: 'In Progress', value: inProgressCount, color: '#3b82f6' },
-              { label: 'Total', value: sessions.length, color: '#9ca3af' },
-            ].map(s => (
-              <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ color: s.color, fontSize: 26, fontWeight: 800, lineHeight: 1 }}>{s.value}</div>
-                <div style={{ color: '#4b5563', fontSize: 12, marginTop: 4 }}>{s.label}</div>
+
+            {/* Metrics */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="px-4 py-2.5 bg-[#050a08] border border-[#134e38] min-w-[95px]">
+                <div className="text-xl font-bold text-white">{sessions.length}</div>
+                <div className="text-xs text-[#a7c4b5]">Sessions</div>
               </div>
-            ))}
+
+              <div className="px-4 py-2.5 bg-[#050a08] border border-[#134e38] min-w-[95px]">
+                <div className="text-xl font-bold text-[#2ea675]">{completedSessions.length}</div>
+                <div className="text-xs text-[#a7c4b5]">Completed</div>
+              </div>
+
+              <div className="px-4 py-2.5 bg-[#050a08] border border-[#134e38] min-w-[95px]">
+                <div className="text-xl font-bold text-[#2ea675]">
+                  {avgScore ? `${avgScore}%` : '—'}
+                </div>
+                <div className="text-xs text-[#a7c4b5]">Avg Score</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Job profile cards */}
-        <div style={{ marginBottom: 48 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <h2 style={{ color: '#f0f0ff', fontSize: 18, fontWeight: 700 }}>Choose a Role to Practice</h2>
-            <span style={{ color: '#4b5563', fontSize: 13 }}>4 roles available</span>
+        {/* Specialized Job Track Profiles */}
+        <div className="mb-12">
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-white tracking-tight">
+              Standardized Role Tracks
+            </h2>
+            <p className="text-xs text-[#a7c4b5] mt-0.5">Role playbooks with predefined question banks and evaluation criteria.</p>
           </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: 16,
-          }}>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {JOB_PROFILES.map(profile => (
               <JobProfileCard key={profile.id} profile={profile} />
             ))}
           </div>
         </div>
 
-        {/* Past sessions */}
+        {/* Past Sessions History */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <h2 style={{ color: '#f0f0ff', fontSize: 18, fontWeight: 700 }}>Past Interviews</h2>
-            {sessions.length > 0 && (
-              <span style={{ color: '#4b5563', fontSize: 13 }}>{sessions.length} session{sessions.length !== 1 ? 's' : ''}</span>
-            )}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-bold text-white tracking-tight">
+                Session History & Feedback
+              </h2>
+            </div>
           </div>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '48px 24px', color: '#4b5563', fontSize: 14 }}>
-              Loading…
+            <div className="p-8 bg-[#0b281d] border border-[#134e38] text-center text-xs text-[#a7c4b5]">
+              Loading session history…
             </div>
           ) : sessions.length === 0 ? (
-            <div style={{
-              textAlign: 'center', padding: '48px 24px',
-              background: '#0e0e1a', border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: 16, color: '#4b5563', fontSize: 14,
-            }}>
-              No interviews yet pick a role above to get started.
+            <div className="p-8 bg-[#0b281d] border border-[#134e38] text-center">
+              <div className="text-xs font-bold text-white mb-1">No recorded interviews yet</div>
+              <p className="text-xs text-[#a7c4b5] max-w-sm mx-auto">
+                Select one of the tracks above to launch your first spoken technical simulation.
+              </p>
             </div>
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: 18,
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {sessions.map(session => (
                 <SessionCard key={session.id} session={session} onDelete={deleteSession} />
               ))}
@@ -123,92 +126,37 @@ export default function Dashboard() {
 }
 
 function JobProfileCard({ profile }) {
-  const [hovered, setHovered] = useState(false)
-  const [hasResume, setHasResume] = useState(false)
-
-  useEffect(() => {
-    setHasResume(!!localStorage.getItem(`prepai_resume_${profile.id}`))
-  }, [profile.id])
+  const IconComponent = ICON_MAP[profile.icon] || Layers
 
   return (
     <Link
       to={`/job/${profile.id}`}
-      style={{ textDecoration: 'none' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="p-4 bg-[#0b281d] border border-[#134e38] hover:border-[#2ea675] flex flex-col justify-between transition-colors"
     >
-      <div style={{
-        background: hovered ? '#13131f' : '#0e0e1a',
-        border: hovered ? `1px solid ${profile.color}50` : '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 16, padding: '24px',
-        transition: 'all 0.2s ease',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-        boxShadow: hovered ? `0 12px 40px ${profile.color}18` : '0 2px 12px rgba(0,0,0,0.3)',
-        cursor: 'pointer', height: '100%',
-        display: 'flex', flexDirection: 'column', gap: 16,
-      }}>
-        {/* Icon + level */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 13,
-            background: `${profile.color}18`,
-            border: `1px solid ${profile.color}35`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}><ProfileIcon name={profile.icon} size={22} color={profile.color} /></div>
-          <span style={{
-            fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20,
-            background: profile.level === 'Advanced' ? 'rgba(245,158,11,0.12)' : 'rgba(59,130,246,0.12)',
-            color: profile.level === 'Advanced' ? '#f59e0b' : '#3b82f6',
-            border: profile.level === 'Advanced' ? '1px solid rgba(245,158,11,0.25)' : '1px solid rgba(59,130,246,0.25)',
-          }}>{profile.level}</span>
+      <div>
+        <div className="p-2 bg-[#050a08] text-[#2ea675] border border-[#134e38] w-fit mb-3">
+          <IconComponent className="w-4 h-4" />
         </div>
 
-        {/* Title + salary */}
-        <div>
-          <div style={{ color: '#f0f0ff', fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{profile.title}</div>
-          <div style={{ color: '#10b981', fontSize: 12, fontWeight: 600 }}>{profile.salary}</div>
+        <h3 className="text-sm font-bold text-white mb-1">
+          {profile.title}
+        </h3>
+        <div className="text-xs text-[#2ea675] font-semibold mb-2">
+          {profile.salary}
         </div>
 
-        {/* Tech tags (first 3) */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {profile.techStack.slice(0, 3).map(t => (
-            <span key={t} style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: '#6b7280', fontSize: 11, fontWeight: 500,
-              padding: '3px 9px', borderRadius: 6,
-            }}>{t}</span>
-          ))}
-          {profile.techStack.length > 3 && (
-            <span style={{ color: '#4b5563', fontSize: 11, padding: '3px 4px' }}>+{profile.techStack.length - 3}</span>
-          )}
+        <div className="text-xs text-[#a7c4b5] mb-4">
+          {profile.techStack.slice(0, 3).join(', ')}
         </div>
+      </div>
 
-        {/* Footer */}
-        <div style={{
-          marginTop: 'auto',
-          borderTop: '1px solid rgba(255,255,255,0.05)',
-          paddingTop: 14,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: '#4b5563', fontSize: 12 }}>5 questions · ~15 min</span>
-            {hasResume && (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)',
-                color: '#10b981', fontSize: 10, fontWeight: 600,
-                padding: '2px 7px', borderRadius: 20,
-              }}>✓ Resume</span>
-            )}
-          </div>
-          <span style={{
-            color: profile.color, fontSize: 13, fontWeight: 600,
-            transform: hovered ? 'translateX(3px)' : 'translateX(0)',
-            transition: 'transform 0.15s',
-            display: 'inline-block',
-          }}>View →</span>
-        </div>
+      <div className="pt-3 border-t border-[#134e38] flex items-center justify-between text-xs">
+        <span className="text-[#a7c4b5]">5 Questions</span>
+
+        <span className="text-xs font-semibold text-[#2ea675] hover:text-white inline-flex items-center gap-1">
+          <span>Start</span>
+          <ChevronRight className="w-3.5 h-3.5 text-[#2ea675]" />
+        </span>
       </div>
     </Link>
   )
