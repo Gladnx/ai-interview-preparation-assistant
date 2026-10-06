@@ -1,6 +1,6 @@
 import { SignUp } from '@clerk/react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Mic } from 'lucide-react'
 
 const clerkAppearance = {
   variables: {
@@ -63,8 +63,8 @@ export default function SignUpPage() {
         
         {/* Top Logo */}
         <Link to="/" className="inline-flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-[#2ea675] text-[#050a08] flex items-center justify-center text-xs font-black">
-            P
+          <div className="w-7 h-7 rounded-full bg-[#2ea675] text-[#050a08] flex items-center justify-center">
+            <Mic className="w-3.5 h-3.5 text-[#050a08]" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-sm tracking-tight text-white">
             PrepAA
@@ -119,7 +119,10 @@ export default function SignUpPage() {
               <span>Back to home</span>
             </Link>
 
-            <div className="mobile-logo">
+            <div className="mobile-logo flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-[#2ea675] text-[#050a08] flex items-center justify-center">
+                <Mic className="w-3 h-3 text-[#050a08]" strokeWidth={2.5} />
+              </div>
               <span className="font-bold text-sm text-white">PrepAA</span>
             </div>
           </div>

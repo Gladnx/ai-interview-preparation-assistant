@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth, useUser, useClerk } from '@clerk/react'
-import { LayoutDashboard, LogOut, ArrowRight, Menu, X } from 'lucide-react'
+import { LayoutDashboard, LogOut, ArrowRight, Menu, X, Mic } from 'lucide-react'
 
 export default function Navbar() {
   const { isSignedIn } = useAuth()
@@ -19,8 +19,8 @@ export default function Navbar() {
         
         {/* Brand */}
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-[#2ea675] text-[#050a08] flex items-center justify-center text-xs font-black">
-            P
+          <div className="w-7 h-7 rounded-full bg-[#2ea675] text-[#050a08] flex items-center justify-center">
+            <Mic className="w-3.5 h-3.5 text-[#050a08]" strokeWidth={2.5} />
           </div>
           <div className="flex items-center gap-2">
             <span className="font-bold text-sm tracking-tight text-white">

@@ -442,8 +442,11 @@ export default function LandingPage() {
       {/* Minimal Footer (Deep Black #050a08) */}
       <footer className="mt-auto border-t border-[#134e38] py-6 bg-[#050a08]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#a7c4b5]">
-          <div className="font-bold text-white">
-            PrepAA
+          <div className="flex items-center gap-2 font-bold text-white">
+            <div className="w-5 h-5 rounded-full bg-[#2ea675] text-[#050a08] flex items-center justify-center">
+              <Mic className="w-3 h-3 text-[#050a08]" strokeWidth={2.5} />
+            </div>
+            <span>PrepAA</span>
           </div>
           <div>
             © {new Date().getFullYear()} PrepAA
